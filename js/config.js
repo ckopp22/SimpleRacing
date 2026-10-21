@@ -123,6 +123,12 @@ export const CONFIG = {
     aiSlots: [0, 1, 3],
   },
   difficulty: { easy: 0.92, normal: 1.02, hard: 1.1 }, // AI speed multipliers
+  // AI car physics multipliers per difficulty (the player always uses 1)
+  difficultyPerf: {
+    easy: { speed: 1, accel: 1, turn: 1 },
+    normal: { speed: 1, accel: 1, turn: 1 },
+    hard: { speed: 1.06, accel: 1.15, turn: 1.04 },
+  },
   hud: { speedScale: 1.86 }, // world units/s -> displayed mph
   player: {
     color: 0xe53935,

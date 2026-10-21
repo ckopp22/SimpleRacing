@@ -35,6 +35,7 @@ export function createSession(scene, track) {
     placeCar(player, gridSpot(CONFIG.grid.playerSlot));
     s.ais = aiCars.map((car, i) => {
       placeCar(car, gridSpot(CONFIG.ai.aiSlots[i]));
+      Object.assign(car.perf, CONFIG.difficultyPerf[difficulty]);
       return createAi(track, car, CONFIG.ai.cars[i], profile);
     });
     for (const c of cars) c.hint = queryTrack(track, c.x, c.z).index;

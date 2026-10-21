@@ -35,6 +35,7 @@ function buildMesh(color, c = CONFIG.car) {
 export function createCar({ color, x = 0, z = 0, heading = 0 }) {
   const car = {
     color, name: '',
+    perf: { speed: 1, accel: 1, turn: 1 }, // per-car handicap/boost multipliers
     slip: 0, braking: false, impact: 0, // read by effects/audio
     x, z, heading,
     vx: 0, vz: 0, // world velocity
@@ -63,9 +64,10 @@ export function stepCar(car, controls, dt, surface = ROAD, c = CONFIG.car) {
   // Steering: smooth the input, turn rate scales with speed
   car.steer += (controls.steer - car.steer) * Math.min(1, c.steerSmooth * dt);
   const speedFrac = clamp(Math.abs(car.speed) / c.turnSpeedRef, 0, 1);
-  const topFrac = clamp(Math.abs(car.speed) / c.maxSpeed, 0, 1);
+  const top = c.maxSpeed * car.perf.speed;
+  const topFrac = clamp(Math.abs(car.speed) / top, 0, 1);
   const dir = car.speed >= 0 ? 1 : -1;
-  car.heading -= car.steer * c.turnRate * speedFrac * (1 - c.highSpeedTurn * topFrac) * dir * dt;
+  car.heading -= car.steer * c.turnRate * car.perf.turn * speedFrac * (1 - c.highSpeedTurn * topFrac) * dir * dt;
 
   // Split velocity into forward/lateral in the new heading basis
   const fx = Math.sin(car.heading), fz = Math.cos(car.heading);
@@ -77,8 +79,8 @@ export function stepCar(car, controls, dt, surface = ROAD, c = CONFIG.car) {
   car.braking = controls.brake > 0;
 
   // Throttle / brake / reverse
-  const cap = c.maxSpeed * surface.speedMul;
-  if (controls.throttle > 0) fs += c.accel * controls.throttle * (1 - clamp(fs / cap, 0, 1)) * dt;
+  const cap = top * surface.speedMul;
+  if (controls.throttle > 0) fs += c.accel * car.perf.accel * controls.throttle * (1 - clamp(fs / cap, 0, 1)) * dt;
   if (fs > cap) fs -= (fs - cap) * c.overSpeedDecel * dt;
   if (controls.brake > 0) {
     if (fs > 0.5) fs = Math.max(0, fs - c.brake * controls.brake * dt);
