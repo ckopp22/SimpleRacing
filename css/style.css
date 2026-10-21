@@ -5,6 +5,9 @@ html, body {
   background: #111;
   overscroll-behavior: none;
   touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 #game {
   display: block;
@@ -87,3 +90,52 @@ html, body {
 #screen .results i { width: 18px; height: 18px; border-radius: 4px; }
 #screen .results b { flex: 1; }
 #screen .results em { font-style: normal; font-variant-numeric: tabular-nums; }
+
+/* Touch controls (touch devices only) */
+#touch { display: none; }
+@media (pointer: coarse) {
+  #touch:not([hidden]) { display: block; }
+}
+#touch .pad {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom) + 16px);
+  display: flex;
+  gap: 10px;
+  touch-action: none;
+}
+#touch .pad-left {
+  left: calc(env(safe-area-inset-left) + 16px);
+  flex-direction: column;
+}
+#touch .pad-right { right: calc(env(safe-area-inset-right) + 16px); }
+#touch [data-k] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.22);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  color: rgba(255, 255, 255, 0.85);
+  font: 700 clamp(22px, 6vh, 40px) system-ui, sans-serif;
+}
+#touch [data-k].pressed { background: rgba(253, 216, 53, 0.65); color: #111; }
+#touch .pad-left [data-k] { width: clamp(110px, 20vw, 190px); height: clamp(64px, 20vh, 100px); }
+#touch .pad-right [data-k] { width: clamp(84px, 14vw, 150px); height: clamp(110px, 34vh, 170px); }
+
+/* Portrait on a touch device: ask for landscape */
+#rotate { display: none; }
+@media (pointer: coarse) and (orientation: portrait) {
+  #rotate {
+    display: flex;
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    background: #10151c;
+    color: #fff;
+    font: 700 24px system-ui, sans-serif;
+  }
+  #rotate div::first-line { font-size: 64px; }
+}

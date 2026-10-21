@@ -97,6 +97,8 @@ window.addEventListener('keydown', (e) => {
   if (e.code === 'Escape' || e.code === 'KeyP') (state === 'PAUSED' ? resume : pause)();
   else if (e.code === 'KeyR' && state !== 'MENU') startRace();
 });
+// Portrait on a touch device: the CSS rotate overlay shows, the game pauses
+matchMedia('(pointer: coarse) and (orientation: portrait)').addEventListener('change', (e) => { if (e.matches) pause(); });
 document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
 
 function resize() {
@@ -153,6 +155,7 @@ function frame(now) {
   const look = CONFIG.camera.lookAhead;
   followCamera(camera, p.mesh.position.x + p.vx * look, p.mesh.position.z + p.vz * look, dt);
   hud.setVisible(state !== 'MENU');
+  input.setTouchVisible(state === 'COUNTDOWN' || state === 'RACING');
   hud.setCountdown(countdownText());
   hud.update(session.race, session.race.entries[0], bestLap);
   renderer.render(scene, camera);
