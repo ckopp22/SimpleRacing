@@ -22,7 +22,17 @@ html, body {
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 #hud .hud-left { position: absolute; top: 12px; left: 16px; }
-#hud .hud-right { position: absolute; top: 12px; right: 16px; text-align: right; }
+#hud .hud-right { position: absolute; top: 12px; right: 16px; text-align: right; display: flex; gap: 12px; align-items: flex-start; }
+#hud-pause {
+  pointer-events: auto;
+  min-width: 64px;
+  min-height: 64px;
+  border: 0;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font: inherit;
+}
 #hud-banner {
   position: absolute;
   top: 40%;
@@ -37,3 +47,43 @@ html, body {
   text-align: center;
   font-size: clamp(48px, 16vh, 140px);
 }
+
+#screen {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: rgba(10, 14, 20, 0.78);
+  color: #fff;
+  font-family: system-ui, sans-serif;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  overflow-y: auto;
+}
+#screen[hidden] { display: none; }
+#screen h1 { margin: 0; font-size: clamp(32px, 9vh, 64px); letter-spacing: 1px; }
+#screen .sub { margin: 0; font-size: clamp(16px, 3.4vh, 24px); opacity: 0.85; }
+#screen .hint { margin: 0; font-size: 14px; opacity: 0.6; }
+#screen button {
+  min-width: 220px;
+  min-height: 64px;
+  padding: 0 28px;
+  border: 0;
+  border-radius: 14px;
+  background: #37474f;
+  color: #fff;
+  font: 700 20px system-ui, sans-serif;
+  cursor: pointer;
+}
+#screen button.primary { background: #e53935; font-size: 26px; }
+#screen .seg { display: flex; gap: 8px; }
+#screen .seg button { min-width: 0; padding: 0 20px; }
+#screen .seg button.on { background: #fdd835; color: #111; }
+#screen .results { list-style: none; margin: 0; padding: 0; width: min(420px, 90vw); }
+#screen .results li { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 8px; font-size: 20px; }
+#screen .results li.you { background: rgba(255, 255, 255, 0.15); }
+#screen .results i { width: 18px; height: 18px; border-radius: 4px; }
+#screen .results b { flex: 1; }
+#screen .results em { font-style: normal; font-variant-numeric: tabular-nums; }

@@ -34,6 +34,7 @@ function buildMesh(color, c = CONFIG.car) {
 
 export function createCar({ color, x = 0, z = 0, heading = 0 }) {
   const car = {
+    color, name: '',
     x, z, heading,
     vx: 0, vz: 0, // world velocity
     speed: 0, // signed forward speed
@@ -43,6 +44,13 @@ export function createCar({ color, x = 0, z = 0, heading = 0 }) {
   };
   syncCar(car, 1);
   return car;
+}
+
+// Put a car back on the grid with no motion
+export function placeCar(car, { x, z, heading }) {
+  Object.assign(car, { x, z, heading, vx: 0, vz: 0, speed: 0, steer: 0 });
+  Object.assign(car.prev, { x, z, heading });
+  syncCar(car, 1);
 }
 
 // One fixed physics step. controls = { throttle, brake, steer }

@@ -47,6 +47,7 @@ export const CONFIG = {
   race: {
     laps: 3,
     checkpoints: [0.25, 0.5, 0.75], // fractions of the loop, passed in order before the line counts
+    graceTime: 6, // seconds the race continues after the player finishes
   },
   countdown: {
     seconds: 3, // 3-2-1 before GO
@@ -78,12 +79,14 @@ export const CONFIG = {
     stuckTime: 1.5,
     reverseTime: 1.2,
     cars: [
-      { color: 0x1e88e5, speedMul: 0.92, offset: -2.5, wobble: 0.8, mistake: 0.25 },
-      { color: 0xfdd835, speedMul: 0.96, offset: 2.0, wobble: 0.6, mistake: 0.18 },
-      { color: 0x43a047, speedMul: 1.0, offset: 0.0, wobble: 0.5, mistake: 0.12 },
+      { name: 'Blue', color: 0x1e88e5, speedMul: 0.92, offset: -2.5, wobble: 0.8, mistake: 0.25 },
+      { name: 'Yellow', color: 0xfdd835, speedMul: 0.96, offset: 2.0, wobble: 0.6, mistake: 0.18 },
+      { name: 'Green', color: 0x43a047, speedMul: 1.0, offset: 0.0, wobble: 0.5, mistake: 0.12 },
     ],
     aiSlots: [0, 1, 3],
   },
+  difficulty: { easy: 0.9, normal: 1, hard: 1.06 }, // AI speed multipliers
+  hud: { speedScale: 3 }, // world units/s -> displayed km/h
   player: {
     color: 0xe53935,
     startBack: 6, // units behind the start line
