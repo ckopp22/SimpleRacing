@@ -23,17 +23,18 @@ export const CONFIG = {
     maxFrame: 0.1, // clamp frame delta (tab-switch protection)
   },
   car: {
-    maxSpeed: 60, // units/s forward
+    maxSpeed: 82, // units/s forward
     reverseMax: 14,
-    accel: 34,
-    brake: 70,
+    accel: 50,
+    brake: 95,
     reverseAccel: 18,
     drag: 0.25, // proportional drag (1/s)
     rolling: 5, // constant coast-down decel when off throttle
     turnRate: 2.5, // rad/s at full steer
     turnSpeedRef: 14, // speed at which full turn rate is reached
-    highSpeedTurn: 0.45, // fraction of turn rate lost at max speed
-    grip: 7, // lateral velocity decay (1/s); lower = more slide
+    highSpeedTurn: 0.55, // fraction of turn rate lost at max speed
+    grip: 4.5, // lateral velocity decay (1/s); lower = more slide
+    slipDrag: 0.35, // speed lost per unit of sideways speed (drifting scrubs speed)
     steerSmooth: 9, // keyboard steer ramp (1/s)
     length: 4.6,
     width: 2.2,
@@ -49,8 +50,8 @@ export const CONFIG = {
     speedLoss: 0.03, // extra fraction of speed lost per impact
   },
   effects: {
-    skidSlip: 6, // sideways speed that leaves tyre marks
-    brakeSkidSpeed: 32, // braking above this speed also marks
+    skidSlip: 8, // sideways speed that leaves tyre marks
+    brakeSkidSpeed: 45, // braking above this speed also marks
     skidWidth: 0.35,
     skidMinStep: 0.6, // units between mark segments
     skidMaxJump: 4,
@@ -74,7 +75,7 @@ export const CONFIG = {
     engineBase: 55, // Hz at standstill
     engineRange: 170, // extra Hz at top speed
     squealVol: 0.08,
-    squealSlip: 5,
+    squealSlip: 7,
     thumpVol: 0.6,
     beepVol: 0.15,
   },
@@ -96,8 +97,8 @@ export const CONFIG = {
     lookAhead: 10, // units
     lookAheadTime: 0.35, // extra seconds of speed
     steerGain: 2.2,
-    cornerSafety: 0.96, // fraction of the physical min turn radius used when picking corner speed
-    brakeDecel: 52, // units/s^2 assumed when planning braking
+    cornerSafety: 0.88, // fraction of the physical min turn radius used when picking corner speed
+    brakeDecel: 70, // units/s^2 assumed when planning braking
     minCornerSpeed: 14,
     maxOffset: 4, // units from centreline
     avoidDist: 20,

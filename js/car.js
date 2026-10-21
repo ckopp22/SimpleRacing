@@ -91,6 +91,7 @@ export function stepCar(car, controls, dt, surface = ROAD, c = CONFIG.car) {
   const sign = Math.sign(fs);
   let loss = Math.abs(fs) * (c.drag + surface.dragAdd) * dt;
   if (controls.throttle === 0 && controls.brake === 0) loss += c.rolling * dt;
+  loss += Math.abs(lat) * c.slipDrag * dt;
   fs = sign * Math.max(0, Math.abs(fs) - loss);
 
   // Grip: bleed off sideways velocity
