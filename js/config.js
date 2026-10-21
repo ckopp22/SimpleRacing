@@ -118,7 +118,8 @@ export const CONFIG = {
     stuckSpeed: 2,
     stuckTime: 1.5,
     reverseTime: 1.2,
-    cars: [
+    ghost: { opacity: 0.4, every: 2 }, // every = record one sample per N physics ticks
+  cars: [
       { name: 'Blue', color: 0x1e88e5, speedMul: 0.97, offset: -2.5, wobble: 0.5, mistake: 0.06 },
       { name: 'Yellow', color: 0xfdd835, speedMul: 1.0, offset: 2.0, wobble: 0.4, mistake: 0.04 },
       { name: 'Green', color: 0x43a047, speedMul: 1.03, offset: 0.0, wobble: 0.3, mistake: 0.02 },

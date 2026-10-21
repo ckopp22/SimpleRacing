@@ -9,6 +9,7 @@ import { createHud } from './ui.js';
 import { createMenus } from './menus.js';
 import { createEffects } from './effects.js';
 import { createAudio } from './audio.js';
+import { createGhost } from './ghost.js';
 import { loadSettings, saveSettings, loadBestLap, saveBestLap } from './storage.js';
 
 const canvas = document.getElementById('game');
@@ -29,6 +30,7 @@ const camera = createCamera();
 const input = createInput();
 const session = createSession(scene, current.data, CONFIG.cars.includes(settings.car) ? settings.car : CONFIG.cars[0]);
 const effects = createEffects(scene);
+const ghost = createGhost(scene);
 const audio = createAudio(settings.muted);
 let bestLap = loadBestLap(current.id);
 let newRecord = false;
@@ -61,6 +63,7 @@ function selectTrack(index) {
 
 function startRace() {
   session.reset(settings.difficulty);
+  ghost.reset(current.id, session.player.spriteId);
   newRecord = false;
   resetView();
   state = 'COUNTDOWN';
@@ -70,6 +73,7 @@ function startRace() {
 
 function toMenu() {
   session.reset(settings.difficulty);
+  ghost.reset(current.id, session.player.spriteId);
   resetView();
   state = 'MENU';
   menus.showTitle({ best: bestLap, ...settings, cars: CONFIG.cars, tracks: TRACKS.map((t) => t.name), trackIndex: TRACKS.findIndex((t) => t.id === current.id) });
@@ -90,6 +94,7 @@ function resume() {
 
 function finishRace() {
   state = 'FINISHED';
+  ghost.reset(current.id, session.player.spriteId);
   const { race } = session;
   menus.showResults({
     rows: race.order.map((e) => ({ name: e.car.name, color: e.car.color, time: e.finishTime, you: e.car === session.player })),
@@ -151,6 +156,7 @@ function tick() {
     return;
   }
   session.tick(step, input.update());
+  ghost.update(session.race.entries[0], session.race.time, step);
   const best = session.race.entries[0].best;
   if (best !== null && (bestLap === null || best < bestLap)) {
     bestLap = best;

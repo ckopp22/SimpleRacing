@@ -26,3 +26,8 @@ export const saveBestLap = (id, t) => {
   const data = read();
   write({ ...data, bestLaps: { ...data.bestLaps, [id]: t } });
 };
+export const loadGhost = (id) => read().ghosts?.[id] ?? null;
+export const saveGhost = (id, g) => {
+  const data = read();
+  write({ ...data, ghosts: { ...data.ghosts, [id]: g } });
+};

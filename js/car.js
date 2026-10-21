@@ -47,7 +47,7 @@ export function setCarSprite(car, id, c = CONFIG.car) {
     const { width, height } = tex.image;
     const m = new THREE.Mesh(
       new THREE.PlaneGeometry(c.length * (width / height), c.length),
-      new THREE.MeshBasicMaterial({ map: tex, transparent: true, alphaTest: 0.5 })
+      new THREE.MeshBasicMaterial({ map: tex, transparent: true, alphaTest: 0.5, opacity: g.userData.opacity ?? 1 })
     );
     m.rotation.set(-Math.PI / 2, 0, Math.PI);
     m.position.y = 1.4;
