@@ -23,7 +23,7 @@ export function createMenus(h) {
       <p class="sub" id="m-best">Best lap: ${formatTime(best)}</p>
       ${btn('m-race', 'Race', 'primary')}
       <div class="seg carpick">${btn('m-cprev', '&lsaquo;')}<img id="m-car" src="assets/cars/${cars[ci]}.png" alt="car">${btn('m-cnext', '&rsaquo;')}</div>
-      <div class="seg" data-g="track">${tracks.map((n, i) => btn(`m-t-${i}`, n, i === trackIndex ? 'on' : '')).join('')}</div>
+      <div class="seg trackpick">${btn('m-tprev', '&lsaquo;')}<span id="m-track">${tracks[trackIndex]}</span>${btn('m-tnext', '&rsaquo;')}</div>
       <div class="seg" data-g="diff">${DIFFS.map((d) => btn(`m-d-${d}`, d[0].toUpperCase() + d.slice(1), d === difficulty ? 'on' : '')).join('')}</div>
       ${btn('m-ghost', ghost ? 'Ghost Car: On' : 'Ghost Car: Off')}`;
     on('m-race', h.onRace);
@@ -34,10 +34,13 @@ export function createMenus(h) {
     };
     on('m-cprev', () => cycle(-1));
     on('m-cnext', () => cycle(1));
-    tracks.forEach((_, i) => on(`m-t-${i}`, () => {
-      el.querySelectorAll('[data-g=track] button').forEach((b) => b.classList.toggle('on', b.id === `m-t-${i}`));
-      el.querySelector('#m-best').textContent = `Best lap: ${formatTime(h.onTrack(i))}`;
-    }));
+    const pickTrack = (d) => {
+      trackIndex = (trackIndex + d + tracks.length) % tracks.length;
+      el.querySelector('#m-track').textContent = tracks[trackIndex];
+      el.querySelector('#m-best').textContent = `Best lap: ${formatTime(h.onTrack(trackIndex))}`;
+    };
+    on('m-tprev', () => pickTrack(-1));
+    on('m-tnext', () => pickTrack(1));
     DIFFS.forEach((d) => on(`m-d-${d}`, () => {
       el.querySelectorAll('[data-g=diff] button').forEach((b) => b.classList.toggle('on', b.id === `m-d-${d}`));
       h.onDifficulty(d);
