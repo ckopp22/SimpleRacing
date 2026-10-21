@@ -95,8 +95,8 @@ export const CONFIG = {
     lookAhead: 10, // units
     lookAheadTime: 0.35, // extra seconds of speed
     steerGain: 2.2,
-    cornerSafety: 0.8, // fraction of the physical min turn radius used when picking corner speed
-    brakeDecel: 38, // units/s^2 assumed when planning braking
+    cornerSafety: 0.96, // fraction of the physical min turn radius used when picking corner speed
+    brakeDecel: 52, // units/s^2 assumed when planning braking
     minCornerSpeed: 14,
     maxOffset: 4, // units from centreline
     avoidDist: 16,
@@ -104,7 +104,8 @@ export const CONFIG = {
     avoidOffset: 3,
     avoidSmooth: 3, // 1/s
     rubberGain: 0.6, // speed multiplier per lap of gap to the player
-    rubberMax: 0.05,
+    rubberMax: 0.08, // max speed-up when the player is ahead
+    rubberSlow: 0.01, // max slow-down when the player is behind
     mistakeEvery: 4, // seconds between mistake rolls
     mistakeSteer: 0.35,
     mistakeTime: 0.5,
@@ -112,13 +113,13 @@ export const CONFIG = {
     stuckTime: 1.5,
     reverseTime: 1.2,
     cars: [
-      { name: 'Blue', color: 0x1e88e5, speedMul: 0.92, offset: -2.5, wobble: 0.8, mistake: 0.25 },
-      { name: 'Yellow', color: 0xfdd835, speedMul: 0.96, offset: 2.0, wobble: 0.6, mistake: 0.18 },
-      { name: 'Green', color: 0x43a047, speedMul: 1.0, offset: 0.0, wobble: 0.5, mistake: 0.12 },
+      { name: 'Blue', color: 0x1e88e5, speedMul: 0.97, offset: -2.5, wobble: 0.8, mistake: 0.25 },
+      { name: 'Yellow', color: 0xfdd835, speedMul: 1.0, offset: 2.0, wobble: 0.6, mistake: 0.18 },
+      { name: 'Green', color: 0x43a047, speedMul: 1.03, offset: 0.0, wobble: 0.5, mistake: 0.12 },
     ],
     aiSlots: [0, 1, 3],
   },
-  difficulty: { easy: 0.9, normal: 1, hard: 1.06 }, // AI speed multipliers
+  difficulty: { easy: 0.92, normal: 1.02, hard: 1.07 }, // AI speed multipliers
   hud: { speedScale: 1.86 }, // world units/s -> displayed mph
   player: {
     color: 0xe53935,

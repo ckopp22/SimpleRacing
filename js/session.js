@@ -47,7 +47,7 @@ export function createSession(scene, track) {
     driveCar(track, player, controls, step);
     s.ais.forEach((ai, i) => {
       const gap = pe.progress - race.entries[i + 1].progress;
-      const r = Math.max(-CONFIG.ai.rubberMax, Math.min(CONFIG.ai.rubberMax, gap * CONFIG.ai.rubberGain));
+      const r = Math.max(-CONFIG.ai.rubberSlow, Math.min(CONFIG.ai.rubberMax, gap * CONFIG.ai.rubberGain));
       driveCar(track, ai.car, updateAi(ai, step, cars, (1 + r) * s.diffMul), step);
     });
     resolveCars(cars);
