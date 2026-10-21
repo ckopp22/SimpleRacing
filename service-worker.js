@@ -1,5 +1,5 @@
 // Bump CACHE on every deploy so installed copies pick up the new build.
-const CACHE = 'topdownracer-v2';
+const CACHE = 'topdownracer-v3';
 
 const SHELL = [
   './',
@@ -22,6 +22,7 @@ const SHELL = [
   './js/storage.js',
   './js/touch.js',
   './js/track.js',
+  './js/tracks.js',
   './js/trackMesh.js',
   './js/ui.js',
   './lib/three.module.min.js',

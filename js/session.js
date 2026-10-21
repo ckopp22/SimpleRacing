@@ -7,8 +7,9 @@ import { buildSpeedProfile, createAi, updateAi } from './ai.js';
 import { createRace } from './race.js';
 
 // One race: owns the cars, AI drivers and race state. reset() starts a fresh grid.
-export function createSession(scene, track) {
-  const profile = buildSpeedProfile(track);
+export function createSession(scene, initialTrack) {
+  let track = initialTrack;
+  let profile = buildSpeedProfile(track);
   const player = createCar({ color: CONFIG.player.color });
   player.name = 'You';
   const aiCars = CONFIG.ai.cars.map((p) => {
@@ -29,6 +30,12 @@ export function createSession(scene, track) {
   }
 
   const s = { cars, player, ais: [], race: null, diffMul: 1 };
+
+  // Swap circuits; call reset() afterwards to put the cars on the new grid
+  s.setTrack = (t) => {
+    track = t;
+    profile = buildSpeedProfile(t);
+  };
 
   s.reset = (difficulty = 'normal') => {
     s.diffMul = CONFIG.difficulty[difficulty] ?? 1;

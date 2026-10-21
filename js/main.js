@@ -1,7 +1,6 @@
 import * as THREE from '../lib/three.module.min.js';
-import { CONFIG } from './config.js';
-import { createTrackData } from './track.js';
-import { buildTrackMesh } from './trackMesh.js';
+import { CONFIG, TRACKS } from './config.js';
+import { makeTrack, disposeTrack } from './tracks.js';
 import { createCamera, resizeCamera, followCamera, snapCamera, shakeCamera } from './camera.js';
 import { createInput } from './input.js';
 import { syncCar } from './car.js';
@@ -23,15 +22,15 @@ const sun = new THREE.DirectionalLight(0xffffff, CONFIG.light.sun);
 sun.position.set(...CONFIG.light.sunPos);
 scene.add(sun);
 
-const track = createTrackData();
-scene.add(buildTrackMesh(track));
+const settings = loadSettings();
+let current = makeTrack(Math.max(0, TRACKS.findIndex((t) => t.id === settings.track)));
+scene.add(current.mesh);
 const camera = createCamera();
 const input = createInput();
-const session = createSession(scene, track);
+const session = createSession(scene, current.data);
 const effects = createEffects(scene);
-const settings = loadSettings();
 const audio = createAudio(settings.muted);
-let bestLap = loadBestLap();
+let bestLap = loadBestLap(current.id);
 let newRecord = false;
 
 // States: MENU, COUNTDOWN, RACING, PAUSED, FINISHED
@@ -43,6 +42,21 @@ const cd = CONFIG.countdown;
 function resetView() {
   snapCamera(camera, session.player.x, session.player.z);
   effects.clear();
+}
+
+// Swap the circuit; returns the best lap stored for it
+function selectTrack(index) {
+  scene.remove(current.mesh);
+  disposeTrack(current);
+  current = makeTrack(index);
+  scene.add(current.mesh);
+  session.setTrack(current.data);
+  settings.track = current.id;
+  saveSettings(settings);
+  bestLap = loadBestLap(current.id);
+  session.reset(settings.difficulty);
+  resetView();
+  return bestLap;
 }
 
 function startRace() {
@@ -58,7 +72,7 @@ function toMenu() {
   session.reset(settings.difficulty);
   resetView();
   state = 'MENU';
-  menus.showTitle({ best: bestLap, ...settings });
+  menus.showTitle({ best: bestLap, ...settings, tracks: TRACKS.map((t) => t.name), trackIndex: TRACKS.findIndex((t) => t.id === current.id) });
 }
 
 function pause() {
@@ -87,6 +101,7 @@ function finishRace() {
 const hud = createHud({ onPause: pause });
 const menus = createMenus({
   onRace: startRace,
+  onTrack: selectTrack,
   onDifficulty: (d) => { settings.difficulty = d; saveSettings(settings); },
   onMute: () => {
     settings.muted = !settings.muted;
@@ -139,7 +154,7 @@ function tick() {
   if (best !== null && (bestLap === null || best < bestLap)) {
     bestLap = best;
     newRecord = true;
-    saveBestLap(bestLap);
+    saveBestLap(current.id, bestLap);
   }
   if (session.isOver()) finishRace();
 }

@@ -143,18 +143,6 @@ export const CONFIG = {
     startY: 0.06,
   },
   track: {
-    // Centreline control points [x, z], closed loop, travel order
-    points: [
-      [-100, 110], [0, 110], [100, 110],
-      [170, 90], [195, 30],
-      [158, -18], [100, -40],
-      [85, -92], [140, -125],
-      [120, -190], [30, -200],
-      [-120, -172], [-180, -128],
-      [-140, -78], [-50, -68],
-      [-30, -20], [-80, 10], [-170, 10],
-      [-195, 60], [-165, 100],
-    ],
     width: 14,
     samples: 300,
     asphaltColor: 0x3a3a3f,
@@ -171,3 +159,53 @@ export const CONFIG = {
     wallScrape: 1.5, // speed bled per second while sliding along a wall (1/s)
   },
 };
+
+// Playable circuits. Each is merged over CONFIG.track, so any track.* key
+// (width, colours, wallDist...) can be overridden per track. Points are [x, z]
+// centreline control points, closed loop in travel order; the first point is the
+// start line and must sit mid-straight. Keep corner radius above ~15 and
+// different sections more than ~32 units apart so the barriers never overlap.
+export const TRACKS = [
+  {
+    id: 'classic',
+    name: 'Classic',
+    points: [
+      [-100, 110], [0, 110], [100, 110],
+      [170, 90], [195, 30],
+      [158, -18], [100, -40],
+      [85, -92], [140, -125],
+      [120, -190], [30, -200],
+      [-120, -172], [-180, -128],
+      [-140, -78], [-50, -68],
+      [-30, -20], [-80, 10], [-170, 10],
+      [-195, 60], [-165, 100],
+    ],
+  },
+  {
+    id: 'speedway',
+    name: 'Speedway',
+    groundColor: 0xb89a5e,
+    asphaltColor: 0x34343a,
+    points: [
+      [0, 130], [130, 130], [240, 115], [300, 55],
+      [300, -35], [245, -95], [170, -98], [125, -78],
+      [80, -112], [20, -100], [-60, -100], [-150, -92],
+      [-230, -50], [-262, 20], [-235, 95], [-150, 130],
+    ],
+  },
+  {
+    id: 'alpine',
+    name: 'Alpine',
+    groundColor: 0xa9b8c4,
+    asphaltColor: 0x4a4f57,
+    points: [
+      [-40, 150], [60, 150], [130, 148], [190, 125],
+      [208, 70], [168, 28], [112, 22], [78, -12],
+      [102, -58], [172, -84], [218, -132], [192, -188],
+      [120, -198], [60, -168], [0, -188], [-70, -202],
+      [-138, -165], [-158, -108], [-118, -82], [-35, -72],
+      [-10, -22], [-85, 12], [-160, 30], [-195, 85],
+      [-185, 128], [-130, 150],
+    ],
+  },
+];

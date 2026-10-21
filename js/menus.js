@@ -5,7 +5,7 @@ const hex = (c) => `#${c.toString(16).padStart(6, '0')}`;
 const ordinal = (n) => ['1st', '2nd', '3rd', '4th'][n - 1] ?? `${n}th`;
 
 // Title, pause and results screens. Handlers: onRace, onDifficulty, onMute,
-// onResume, onRestart, onQuit, onAgain, onMenu.
+// onResume, onRestart, onQuit, onAgain, onMenu, onTrack(index) -> best lap there.
 export function createMenus(h) {
   const el = document.createElement('div');
   el.id = 'screen';
@@ -16,17 +16,22 @@ export function createMenus(h) {
   const on = (id, fn) => el.querySelector(`#${id}`).addEventListener('click', fn);
   const touch = matchMedia('(pointer: coarse)').matches;
 
-  function showTitle({ best, difficulty, muted }) {
+  function showTitle({ best, difficulty, muted, tracks, trackIndex }) {
     el.innerHTML = `
       <h1>Top Down Racer</h1>
-      <p class="sub">Best lap: ${formatTime(best)}</p>
+      <p class="sub" id="m-best">Best lap: ${formatTime(best)}</p>
       ${btn('m-race', 'Race', 'primary')}
-      <div class="seg">${DIFFS.map((d) => btn(`m-d-${d}`, d[0].toUpperCase() + d.slice(1), d === difficulty ? 'on' : '')).join('')}</div>
+      <div class="seg" data-g="track">${tracks.map((n, i) => btn(`m-t-${i}`, n, i === trackIndex ? 'on' : '')).join('')}</div>
+      <div class="seg" data-g="diff">${DIFFS.map((d) => btn(`m-d-${d}`, d[0].toUpperCase() + d.slice(1), d === difficulty ? 'on' : '')).join('')}</div>
       ${btn('m-mute', muted ? 'Sound: Off' : 'Sound: On')}
       <p class="hint">${touch ? 'Left: gas / brake &middot; Right: steer' : 'W A S D or arrows to drive &middot; Esc pause &middot; R restart'}</p>`;
     on('m-race', h.onRace);
+    tracks.forEach((_, i) => on(`m-t-${i}`, () => {
+      el.querySelectorAll('[data-g=track] button').forEach((b) => b.classList.toggle('on', b.id === `m-t-${i}`));
+      el.querySelector('#m-best').textContent = `Best lap: ${formatTime(h.onTrack(i))}`;
+    }));
     DIFFS.forEach((d) => on(`m-d-${d}`, () => {
-      el.querySelectorAll('.seg button').forEach((b) => b.classList.toggle('on', b.id === `m-d-${d}`));
+      el.querySelectorAll('[data-g=diff] button').forEach((b) => b.classList.toggle('on', b.id === `m-d-${d}`));
       h.onDifficulty(d);
     }));
     on('m-mute', () => {
