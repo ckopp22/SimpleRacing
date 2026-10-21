@@ -118,7 +118,6 @@ export const CONFIG = {
     stuckSpeed: 2,
     stuckTime: 1.5,
     reverseTime: 1.2,
-    ghost: { opacity: 0.4, every: 2 }, // every = record one sample per N physics ticks
   cars: [
       { name: 'Blue', color: 0x1e88e5, speedMul: 0.97, offset: -2.5, wobble: 0.5, mistake: 0.06 },
       { name: 'Yellow', color: 0xfdd835, speedMul: 1.0, offset: 2.0, wobble: 0.4, mistake: 0.04 },
@@ -134,6 +133,7 @@ export const CONFIG = {
     hard: { speed: 1, accel: 1, turn: 1 },
   },
   hud: { speedScale: 1.86 }, // world units/s -> displayed mph
+  ghost: { opacity: 0.4, every: 2 }, // every = record one sample per N physics ticks
   cars: ['car01', 'car03', 'car04', 'car06', 'car08', 'car09', 'car10', 'car11', 'car12', 'car13', 'car14', 'car15', 'car16', 'car17', 'car18', 'car19', 'car20', 'car21', 'car22', 'car23', 'car24', 'car25', 'car26', 'car27', 'car28', 'car29', 'car30', 'car31', 'car32', 'car33', 'car34', 'car35', 'car36', 'car37', 'car38', 'car40', 'car41', 'car42', 'car43'], // sprite ids in assets/cars/
   player: {
     color: 0xe53935,
