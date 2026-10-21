@@ -82,7 +82,6 @@ export const CONFIG = {
   race: {
     laps: 3,
     checkpoints: [0.25, 0.5, 0.75], // fractions of the loop, passed in order before the line counts
-    graceTime: 6, // seconds the race continues after the player finishes
   },
   countdown: {
     seconds: 3, // 3-2-1 before GO

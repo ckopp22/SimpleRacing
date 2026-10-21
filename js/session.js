@@ -74,12 +74,8 @@ export function createSession(scene, initialTrack, playerSprite) {
     race.update(step);
   };
 
-  // Player finished and either everyone is done or the grace timer ran out
-  s.isOver = () => {
-    const { race } = s;
-    const pf = race.entries[0].finishTime;
-    return pf !== null && (race.time - pf >= CONFIG.race.graceTime || race.entries.every((e) => e.finishTime !== null));
-  };
+  // The race ends the moment the player finishes; cars still racing show as DNF
+  s.isOver = () => s.race.entries[0].finishTime !== null;
 
   s.reset();
   return s;
