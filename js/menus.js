@@ -5,7 +5,7 @@ const hex = (c) => `#${c.toString(16).padStart(6, '0')}`;
 const ordinal = (n) => ['1st', '2nd', '3rd', '4th'][n - 1] ?? `${n}th`;
 
 // Title, pause and results screens. Handlers: onRace, onDifficulty, onMute,
-// onResume, onRestart, onQuit, onAgain, onMenu, onTrack(index) -> best lap there, onCar(id), onGhost() -> enabled, hasWon(trackIndex, difficulty).
+// onResume, onRestart, onQuit, onAgain, onMenu, onTrack(index) -> best lap there, onCar(id), onGhost() -> enabled, hasWon(trackIndex, difficulty), onOnline().
 export function createMenus(h) {
   const el = document.createElement('div');
   el.id = 'screen';
@@ -19,7 +19,7 @@ export function createMenus(h) {
     let ci = Math.max(0, cars.indexOf(car));
     el.innerHTML = `
       <h1>Simply Racing</h1>
-      ${btn('m-mute', muted ? '&#128263;' : '&#128266;', 'corner')}
+      ${btn('m-mute', muted ? '&#128263;' : '&#128266;', 'corner')}${btn('m-online', '&#127760;', 'corner right')}
       <p class="sub" id="m-best">Best lap: ${formatTime(best)}</p>
       ${btn('m-race', 'Race', 'primary')}
       <div class="seg carpick">${btn('m-cprev', '&lsaquo;')}<img id="m-car" src="assets/cars/${cars[ci]}.png" alt="car">${btn('m-cnext', '&rsaquo;')}</div>
@@ -52,6 +52,7 @@ export function createMenus(h) {
       const m = h.onMute();
       el.querySelector('#m-mute').innerHTML = m ? '&#128263;' : '&#128266;';
     });
+    on('m-online', h.onOnline);
     on('m-ghost', () => {
       const g = h.onGhost();
       el.querySelector('#m-ghost').textContent = g ? 'Ghost Car: On' : 'Ghost Car: Off';
@@ -115,5 +116,12 @@ export function createMenus(h) {
     })(last);
   }
 
-  return { showTitle, showPause, showResults, hide: () => { el.hidden = true; } };
+  // Generic screen for other modules (online lobby etc.): html, then bind(el) to wire it up
+  function show(html, bind) {
+    el.innerHTML = html;
+    bind?.(el);
+    el.hidden = false;
+  }
+
+  return { show, showTitle, showPause, showResults, hide: () => { el.hidden = true; } };
 }

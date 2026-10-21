@@ -6,6 +6,15 @@ import { resolveCars } from './collision.js';
 import { buildSpeedProfile, createAi, updateAi } from './ai.js';
 import { createRace } from './race.js';
 
+// Slots 0/1 = front row left/right, 2/3 = second row
+export function slotSpot(track, slot) {
+  const g = CONFIG.grid;
+  const back = CONFIG.player.startBack + (slot >> 1) * g.rowGap;
+  const lat = (slot & 1 ? -1 : 1) * g.lateral; // normal points left
+  const p = track.points[0], t = track.tangents[0], n = track.normals[0];
+  return { x: p.x - t.x * back + n.x * lat, z: p.z - t.z * back + n.z * lat, heading: Math.atan2(t.x, t.z) };
+}
+
 // One race: owns the cars, AI drivers and race state. reset() starts a fresh grid.
 export function createSession(scene, initialTrack, playerSprite) {
   let track = initialTrack;
@@ -25,14 +34,7 @@ export function createSession(scene, initialTrack, playerSprite) {
   const cars = [player, ...aiCars];
   cars.forEach((c) => scene.add(c.mesh));
 
-  // Slots 0/1 = front row left/right, 2/3 = second row
-  function gridSpot(slot) {
-    const g = CONFIG.grid;
-    const back = CONFIG.player.startBack + (slot >> 1) * g.rowGap;
-    const lat = (slot & 1 ? -1 : 1) * g.lateral; // normal points left
-    const p = track.points[0], t = track.tangents[0], n = track.normals[0];
-    return { x: p.x - t.x * back + n.x * lat, z: p.z - t.z * back + n.z * lat, heading: Math.atan2(t.x, t.z) };
-  }
+  const gridSpot = (slot) => slotSpot(track, slot);
 
   const s = { cars, player, ais: [], race: null, diffMul: 1 };
 

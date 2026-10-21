@@ -1,5 +1,5 @@
 // Bump CACHE on every deploy so installed copies pick up the new build.
-const CACHE = 'topdownracer-v19';
+const CACHE = 'topdownracer-v20';
 
 const SHELL = [
   './',
@@ -18,6 +18,9 @@ const SHELL = [
   './js/input.js',
   './js/main.js',
   './js/menus.js',
+  './js/net.js',
+  './js/online.js',
+  './js/onlineSession.js',
   './js/race.js',
   './js/scenery.js',
   './js/session.js',
@@ -28,6 +31,7 @@ const SHELL = [
   './js/trackMesh.js',
   './js/ui.js',
   './lib/three.module.min.js',
+  './lib/peerjs.min.js',
   './assets/cars/car01.png',
   './assets/cars/car03.png',
   './assets/cars/car04.png',

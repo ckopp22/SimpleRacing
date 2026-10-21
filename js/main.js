@@ -10,6 +10,7 @@ import { createMenus } from './menus.js';
 import { createEffects } from './effects.js';
 import { createAudio } from './audio.js';
 import { createGhost } from './ghost.js';
+import { createOnline } from './online.js';
 import { loadSettings, saveSettings, loadBestLap, saveBestLap, hasWon, saveWin } from './storage.js';
 
 const canvas = document.getElementById('game');
@@ -28,7 +29,8 @@ let current = makeTrack(Math.max(0, TRACKS.findIndex((t) => t.id === settings.tr
 scene.add(current.mesh);
 const camera = createCamera();
 const input = createInput();
-const session = createSession(scene, current.data, CONFIG.cars.includes(settings.car) ? settings.car : CONFIG.cars[0]);
+const soloSession = createSession(scene, current.data, CONFIG.cars.includes(settings.car) ? settings.car : CONFIG.cars[0]);
+let session = soloSession; // swapped for the online race session while playing online
 const effects = createEffects(scene);
 const ghost = createGhost(scene);
 const audio = createAudio(settings.muted);
@@ -52,18 +54,18 @@ function selectTrack(index) {
   disposeTrack(current);
   current = makeTrack(index);
   scene.add(current.mesh);
-  session.setTrack(current.data);
+  soloSession.setTrack(current.data);
   settings.track = current.id;
   saveSettings(settings);
   bestLap = loadBestLap(current.id);
-  session.reset(settings.difficulty);
+  soloSession.reset(settings.difficulty);
   resetView();
   return bestLap;
 }
 
 function startRace() {
-  session.reset(settings.difficulty);
-  ghost.reset(current.id, session.player.spriteId);
+  soloSession.reset(settings.difficulty);
+  ghost.reset(current.id, soloSession.player.spriteId);
   newRecord = false;
   resetView();
   state = 'COUNTDOWN';
@@ -72,14 +74,15 @@ function startRace() {
 }
 
 function toMenu() {
-  session.reset(settings.difficulty);
-  ghost.reset(current.id, session.player.spriteId);
+  soloSession.reset(settings.difficulty);
+  ghost.reset(current.id, soloSession.player.spriteId);
   resetView();
   state = 'MENU';
   menus.showTitle({ best: bestLap, ...settings, cars: CONFIG.cars, tracks: TRACKS.map((t) => t.name), trackIndex: TRACKS.findIndex((t) => t.id === current.id) });
 }
 
 function pause() {
+  if (session.net) return online.escape();
   if (state !== 'COUNTDOWN' && state !== 'RACING') return;
   resumeState = state;
   state = 'PAUSED';
@@ -87,6 +90,7 @@ function pause() {
 }
 
 function resume() {
+  if (session.net) return online.escape();
   if (state !== 'PAUSED') return;
   state = resumeState;
   menus.hide();
@@ -110,8 +114,9 @@ const hud = createHud({ onPause: pause });
 const menus = createMenus({
   onRace: startRace,
   onTrack: selectTrack,
+  onOnline: () => { setSoloCarsVisible(false); online.open(); },
   hasWon: (trackIndex, diff) => hasWon(TRACKS[trackIndex].id, diff),
-  onCar: (id) => { session.setPlayerCar(id); settings.car = id; saveSettings(settings); },
+  onCar: (id) => { soloSession.setPlayerCar(id); settings.car = id; saveSettings(settings); },
   onDifficulty: (d) => { settings.difficulty = d; saveSettings(settings); },
   onGhost: () => {
     settings.ghost = !settings.ghost;
@@ -134,11 +139,11 @@ const menus = createMenus({
 window.addEventListener('keydown', (e) => {
   if (e.repeat) return;
   if (e.code === 'Escape' || e.code === 'KeyP') (state === 'PAUSED' ? resume : pause)();
-  else if (e.code === 'KeyR' && state !== 'MENU') startRace();
+  else if (e.code === 'KeyR' && state !== 'MENU' && !session.net) startRace();
 });
 // Portrait on a touch device: the CSS rotate overlay shows, the game pauses
-matchMedia('(pointer: coarse) and (orientation: portrait)').addEventListener('change', (e) => { if (e.matches) pause(); });
-document.addEventListener('visibilitychange', () => { if (document.hidden) pause(); });
+matchMedia('(pointer: coarse) and (orientation: portrait)').addEventListener('change', (e) => { if (e.matches && !session.net) pause(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && !session.net) pause(); });
 
 function resize() {
   const w = window.innerWidth;
@@ -165,6 +170,7 @@ function tick() {
     return;
   }
   session.tick(step, input.update());
+  if (session.net) return; // the online session handles laps and results itself
   ghost.update(session.race.entries[0]);
   const best = session.race.entries[0].best;
   if (best !== null && (bestLap === null || best < bestLap)) {
@@ -216,7 +222,8 @@ function frame(now) {
   for (const c of session.cars) syncCar(c, alpha);
   const p = session.player;
   const active = state === 'COUNTDOWN' || state === 'RACING';
-  if (state === 'RACING') ghost.show(session.race.entries[0], session.race.time, step, alpha, settings.ghost);
+  session.frame?.(alpha);
+  if (state === 'RACING' && !session.net) ghost.show(session.race.entries[0], session.race.time, step, alpha, settings.ghost);
   if (active) effects.update(dt, session.cars);
   handleImpacts();
   audio.update({
@@ -228,7 +235,7 @@ function frame(now) {
   });
   const look = CONFIG.camera.lookAhead;
   followCamera(camera, p.mesh.position.x + p.vx * look, p.mesh.position.z + p.vz * look, dt);
-  hud.setVisible(state !== 'MENU');
+  hud.setVisible(state !== 'MENU' && state !== 'LOBBY');
   input.setTouchVisible(state === 'COUNTDOWN' || state === 'RACING');
   const count = countdownText();
   if (count !== lastCount) {
@@ -236,10 +243,51 @@ function frame(now) {
     lastCount = count;
   }
   hud.setCountdown(count);
-  hud.update(session.race, session.race.entries[0], bestLap);
+  hud.update(session.race, session.race.entries[0], session.net ? session.race.entries[0].best : bestLap);
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
 }
+
+const setSoloCarsVisible = (v) => soloSession.cars.forEach((c) => { c.mesh.visible = v; });
+
+// Hooks the online module uses to drive the game loop
+const game = {
+  scene, menus, settings, solo: soloSession,
+  getState: () => state,
+  setState: (s) => { state = s; },
+  // Show a circuit without touching the saved solo track
+  loadTrack(index) {
+    scene.remove(current.mesh);
+    disposeTrack(current);
+    current = makeTrack(index);
+    scene.add(current.mesh);
+    soloSession.setTrack(current.data);
+    soloSession.reset(settings.difficulty);
+    resetView();
+    return current.data;
+  },
+  useSession(s) {
+    if (s === session) return;
+    if (session !== soloSession) session.dispose?.();
+    session = s;
+    setSoloCarsVisible(false);
+    resetView();
+  },
+  begin() {
+    resetView();
+    state = 'COUNTDOWN';
+    stateTime = 0;
+    menus.hide();
+  },
+  // Back to the normal title screen
+  exit() {
+    session = soloSession;
+    setSoloCarsVisible(true);
+    selectTrack(Math.max(0, TRACKS.findIndex((t) => t.id === settings.track)));
+    toMenu();
+  },
+};
+const online = createOnline(game);
 
 toMenu();
 requestAnimationFrame(frame);

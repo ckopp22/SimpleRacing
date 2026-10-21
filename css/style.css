@@ -149,3 +149,8 @@ html, body {
 #screen .seg button { position: relative; }
 #screen .seg button b { position: absolute; top: -12px; right: -8px; font-size: 24px; line-height: 1; }
 #screen .confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+#screen button.corner.right { left: auto; right: calc(12px + env(safe-area-inset-right)); }
+#screen input { min-height: 56px; min-width: 0; width: 200px; padding: 0 14px; border: 2px solid #455a64; border-radius: 14px; background: #263238; color: #fff; font: 700 22px system-ui, sans-serif; text-align: center; }
+#screen .seg input { width: 150px; }
+#screen .results img { height: 30px; width: auto; }
+#screen .results span { min-width: 34px; }
