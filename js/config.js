@@ -129,7 +129,7 @@ export const CONFIG = {
   difficultyPerf: {
     easy: { speed: 1, accel: 1, turn: 1 },
     normal: { speed: 1, accel: 1, turn: 1 },
-    hard: { speed: 1.06, accel: 1.15, turn: 1.04 },
+    hard: { speed: 1, accel: 1, turn: 1 },
   },
   hud: { speedScale: 1.86 }, // world units/s -> displayed mph
   player: {
