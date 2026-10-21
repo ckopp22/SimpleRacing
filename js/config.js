@@ -9,7 +9,8 @@ export const CONFIG = {
     sunPos: [20, 100, 30],
   },
   camera: {
-    viewHeight: 140, // world units visible vertically, same on every device
+    viewHeight: 140, // world units visible vertically, same on every desktop screen
+    viewHeightTouch: 95, // same, zoomed in on touch devices (small screens)
     height: 100,
     follow: 5, // lerp rate (1/s)
     lookAhead: 0.35, // seconds of velocity the camera leads by

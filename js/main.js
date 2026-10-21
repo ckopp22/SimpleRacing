@@ -1,7 +1,7 @@
 import * as THREE from '../lib/three.module.min.js';
 import { CONFIG, TRACKS } from './config.js';
 import { makeTrack, disposeTrack } from './tracks.js';
-import { createCamera, resizeCamera, followCamera, snapCamera, shakeCamera } from './camera.js';
+import { createCamera, resizeCamera, followCamera, snapCamera, shakeCamera, viewHeight } from './camera.js';
 import { createInput } from './input.js';
 import { syncCar } from './car.js';
 import { createSession } from './session.js';
@@ -130,7 +130,7 @@ function resize() {
   const h = window.innerHeight;
   renderer.setSize(w, h, false);
   resizeCamera(camera, w, h);
-  effects.setScale(h / CONFIG.camera.viewHeight);
+  effects.setScale(h / viewHeight());
 }
 window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', resize);

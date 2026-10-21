@@ -10,8 +10,13 @@ export function createCamera() {
   return cam;
 }
 
+const touch = matchMedia('(pointer: coarse)');
+
+// World units visible top to bottom
+export const viewHeight = () => (touch.matches ? CONFIG.camera.viewHeightTouch : CONFIG.camera.viewHeight);
+
 export function resizeCamera(cam, w, h) {
-  const halfH = CONFIG.camera.viewHeight / 2;
+  const halfH = viewHeight() / 2;
   const halfW = halfH * (w / h);
   cam.left = -halfW;
   cam.right = halfW;
