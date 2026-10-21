@@ -1,0 +1,16 @@
+{
+  "name": "Top Down Racer",
+  "short_name": "Racer",
+  "description": "Pick up and race: you and 3 AI cars, 3 laps.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#10151c",
+  "theme_color": "#10151c",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

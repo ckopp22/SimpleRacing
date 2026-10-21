@@ -164,3 +164,8 @@ function frame(now) {
 
 toMenu();
 requestAnimationFrame(frame);
+
+// Offline support. Skipped on localhost (cache-first would serve stale code
+// while developing); add ?sw to the URL to test it there.
+const dev = ['localhost', '127.0.0.1'].includes(location.hostname) && !location.search.includes('sw');
+if ('serviceWorker' in navigator && !dev) navigator.serviceWorker.register('./service-worker.js');
