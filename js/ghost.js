@@ -30,12 +30,12 @@ export function createGhost(scene) {
   }
 
   // Call after each physics tick with the player's race entry
-  function update(entry, raceTime, step, enabled = true) {
+  function update(entry) {
     const p = entry.car;
     if (recStart !== null && entry.lapStart !== recStart) {
       const t = entry.lapTimes[entry.lapTimes.length - 1];
       if (buf.length && (!data || t < data.time)) {
-        data = { time: t, s: buf };
+        data = { time: t, every: G.every, s: buf };
         saveGhost(trackId, data);
       }
       buf = [];
@@ -46,10 +46,13 @@ export function createGhost(scene) {
     if (tickN++ % G.every === 0 && entry.finishTime === null) {
       buf.push(+p.x.toFixed(2), +p.z.toFixed(2), +p.heading.toFixed(3));
     }
+  }
 
-    // Playback
+  // Call every rendered frame: replay at the interpolated time between physics ticks
+  function show(entry, raceTime, step, alpha, enabled = true) {
     const m = car.mesh;
-    const f = enabled && data && entry.finishTime === null ? (raceTime - entry.lapStart) / (step * G.every) : -1;
+    const every = data?.every ?? 2;
+    const f = enabled && data && entry.started && entry.finishTime === null ? (raceTime - (1 - alpha) * step - entry.lapStart) / (step * every) : -1;
     const i = Math.floor(f);
     if (f < 0 || (i + 1) * 3 >= data.s.length) {
       m.visible = false;
@@ -62,5 +65,5 @@ export function createGhost(scene) {
     m.rotation.y = s[a + 2] + wrapPi(s[b + 2] - s[a + 2]) * k;
   }
 
-  return { reset, update, setSprite: (id) => setCarSprite(car, id) };
+  return { reset, update, show, setSprite: (id) => setCarSprite(car, id) };
 }

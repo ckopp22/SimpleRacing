@@ -137,7 +137,7 @@ export const CONFIG = {
     spread: 110, // how far past the track bounds props are scattered
     density: 0.0011, // props per square unit (upper bound; spacing may cut it)
   },
-  ghost: { opacity: 0.4, every: 2 }, // every = record one sample per N physics ticks
+  ghost: { opacity: 0.4, every: 1 }, // every = record one sample per N physics ticks
   cars: ['car01', 'car03', 'car04', 'car06', 'car08', 'car09', 'car10', 'car11', 'car12', 'car13', 'car14', 'car15', 'car16', 'car17', 'car18', 'car19', 'car20', 'car21', 'car22', 'car23', 'car24', 'car25', 'car26', 'car27', 'car28', 'car29', 'car30', 'car31', 'car32', 'car33', 'car34', 'car35', 'car36', 'car37', 'car38', 'car40', 'car41', 'car42', 'car43'], // sprite ids in assets/cars/
   player: {
     color: 0xe53935,

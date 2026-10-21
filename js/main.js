@@ -165,7 +165,7 @@ function tick() {
     return;
   }
   session.tick(step, input.update());
-  ghost.update(session.race.entries[0], session.race.time, step, settings.ghost);
+  ghost.update(session.race.entries[0]);
   const best = session.race.entries[0].best;
   if (best !== null && (bestLap === null || best < bestLap)) {
     bestLap = best;
@@ -216,6 +216,7 @@ function frame(now) {
   for (const c of session.cars) syncCar(c, alpha);
   const p = session.player;
   const active = state === 'COUNTDOWN' || state === 'RACING';
+  if (state === 'RACING') ghost.show(session.race.entries[0], session.race.time, step, alpha, settings.ghost);
   if (active) effects.update(dt, session.cars);
   handleImpacts();
   audio.update({
