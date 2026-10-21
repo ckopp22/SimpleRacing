@@ -38,6 +38,12 @@ export const CONFIG = {
     overSpeedDecel: 3, // 1/s pull-down when above the surface speed cap
     grass: { speedMul: 0.4, dragAdd: 1.2, gripMul: 0.5 },
   },
+  collision: {
+    circles: [-1.2, 0, 1.2], // circle centres along the car's length
+    radius: 1.15,
+    restitution: 0.35, // bounciness of car-to-car hits
+    speedLoss: 0.03, // extra fraction of speed lost per impact
+  },
   race: {
     laps: 3,
     checkpoints: [0.25, 0.5, 0.75], // fractions of the loop, passed in order before the line counts

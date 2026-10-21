@@ -7,6 +7,7 @@ import { createInput } from './input.js';
 import { createCar, syncCar } from './car.js';
 import { buildSpeedProfile, createAi, updateAi } from './ai.js';
 import { driveCar } from './drive.js';
+import { resolveCars } from './collision.js';
 import { createRace } from './race.js';
 import { createHud } from './ui.js';
 
@@ -90,6 +91,7 @@ function tick() {
     const rubber = 1 + Math.max(-CONFIG.ai.rubberMax, Math.min(CONFIG.ai.rubberMax, gap * CONFIG.ai.rubberGain));
     driveCar(track, ai.car, updateAi(ai, step, cars, rubber), step);
   });
+  resolveCars(cars);
   race.update(step);
 }
 
