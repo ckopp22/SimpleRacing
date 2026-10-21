@@ -11,8 +11,33 @@ export const CONFIG = {
   camera: {
     viewHeight: 140, // world units visible vertically, same on every device
     height: 100,
-    follow: 4, // lerp rate (1/s)
-    demoSpeed: 40, // M2 only: units/s the camera tours the track
+    follow: 5, // lerp rate (1/s)
+    lookAhead: 0.35, // seconds of velocity the camera leads by
+  },
+  loop: {
+    step: 1 / 60, // fixed physics timestep (s)
+    maxFrame: 0.1, // clamp frame delta (tab-switch protection)
+  },
+  car: {
+    maxSpeed: 60, // units/s forward
+    reverseMax: 14,
+    accel: 34,
+    brake: 70,
+    reverseAccel: 18,
+    drag: 0.25, // proportional drag (1/s)
+    rolling: 5, // constant coast-down decel when off throttle
+    turnRate: 2.5, // rad/s at full steer
+    turnSpeedRef: 14, // speed at which full turn rate is reached
+    highSpeedTurn: 0.45, // fraction of turn rate lost at max speed
+    grip: 7, // lateral velocity decay (1/s); lower = more slide
+    steerSmooth: 9, // keyboard steer ramp (1/s)
+    length: 4.6,
+    width: 2.2,
+    height: 0.9,
+  },
+  player: {
+    color: 0xe53935,
+    startBack: 6, // units behind the start line
   },
   world: {
     groundSize: 3000,

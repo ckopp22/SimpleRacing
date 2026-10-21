@@ -3,6 +3,8 @@ import { CONFIG } from './config.js';
 import { createTrackData } from './track.js';
 import { buildTrackMesh } from './trackMesh.js';
 import { createCamera, resizeCamera, followCamera } from './camera.js';
+import { createInput } from './input.js';
+import { createCar, stepCar, syncCar } from './car.js';
 
 const canvas = document.getElementById('game');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -18,8 +20,19 @@ scene.add(sun);
 const track = createTrackData();
 scene.add(buildTrackMesh(track));
 const camera = createCamera();
-camera.position.x = track.points[0].x;
-camera.position.z = track.points[0].z;
+const input = createInput();
+
+const start = track.points[0];
+const fwd = track.tangents[0];
+const player = createCar({
+  color: CONFIG.player.color,
+  x: start.x - fwd.x * CONFIG.player.startBack,
+  z: start.z - fwd.z * CONFIG.player.startBack,
+  heading: Math.atan2(fwd.x, fwd.z),
+});
+scene.add(player.mesh);
+camera.position.x = player.x;
+camera.position.z = player.z;
 
 function resize() {
   const w = window.innerWidth;
@@ -31,16 +44,21 @@ window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', resize);
 resize();
 
-// M2 only: camera tours the centreline so the whole track can be inspected.
+const { step, maxFrame } = CONFIG.loop;
 let last = performance.now();
-let dist = 0;
-const lengthPerSample = track.curve.getLength() / track.count;
+let acc = 0;
 function frame(now) {
-  const dt = Math.min((now - last) / 1000, 0.1);
+  const dt = Math.min((now - last) / 1000, maxFrame);
   last = now;
-  dist += CONFIG.camera.demoSpeed * dt;
-  const p = track.points[Math.floor(dist / lengthPerSample) % track.count];
-  followCamera(camera, p.x, p.z, dt);
+  acc += dt;
+  while (acc >= step) {
+    stepCar(player, input.update(), step);
+    acc -= step;
+  }
+  const alpha = acc / step;
+  syncCar(player, alpha);
+  const look = CONFIG.camera.lookAhead;
+  followCamera(camera, player.mesh.position.x + player.vx * look, player.mesh.position.z + player.vz * look, dt);
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
 }
