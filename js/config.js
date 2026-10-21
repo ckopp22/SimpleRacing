@@ -125,12 +125,12 @@ export const CONFIG = {
     ],
     aiSlots: [0, 1, 3],
   },
-  difficulty: { easy: 0.92, normal: 1.02, hard: 1.1 }, // AI speed multipliers
-  // AI car physics multipliers per difficulty (the player always uses 1)
+  difficulty: { easy: 0.92, normal: 1.02, hard: 1.13 }, // AI speed multipliers
+  // AI car physics multipliers per difficulty (the player always uses 1; accel makes AI recover faster from corners and hits)
   difficultyPerf: {
-    easy: { speed: 1, accel: 1, turn: 1 },
-    normal: { speed: 1, accel: 1, turn: 1 },
-    hard: { speed: 1, accel: 1, turn: 1 },
+    easy: { speed: 1, accel: 0.9, turn: 1 },
+    normal: { speed: 1, accel: 1.15, turn: 1 },
+    hard: { speed: 1, accel: 1.4, turn: 1 },
   },
   hud: { speedScale: 1.86 }, // world units/s -> displayed mph
   scenery: {
