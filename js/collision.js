@@ -39,6 +39,8 @@ export function resolveCars(cars, cfg = CONFIG.collision) {
 
       const vn = (a.vx - b.vx) * nx + (a.vz - b.vz) * nz; // < 0 = closing
       if (vn < 0) {
+        a.impact = Math.max(a.impact, -vn);
+        b.impact = Math.max(b.impact, -vn);
         const j = -(1 + cfg.restitution) * vn / 2;
         a.vx += nx * j; a.vz += nz * j;
         b.vx -= nx * j; b.vz -= nz * j;

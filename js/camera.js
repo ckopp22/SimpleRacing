@@ -20,8 +20,25 @@ export function resizeCamera(cam, w, h) {
   cam.updateProjectionMatrix();
 }
 
+// Camera position = smoothed base + decaying random shake
+export function snapCamera(cam, x, z) {
+  cam.userData.base = { x, z };
+  cam.userData.shake = 0;
+  cam.position.x = x;
+  cam.position.z = z;
+}
+
+export function shakeCamera(cam, amount) {
+  cam.userData.shake = Math.min(CONFIG.camera.shakeMax, Math.max(cam.userData.shake || 0, amount));
+}
+
 export function followCamera(cam, x, z, dt) {
+  const u = cam.userData;
+  u.base ??= { x: cam.position.x, z: cam.position.z };
   const k = 1 - Math.exp(-CONFIG.camera.follow * dt);
-  cam.position.x += (x - cam.position.x) * k;
-  cam.position.z += (z - cam.position.z) * k;
+  u.base.x += (x - u.base.x) * k;
+  u.base.z += (z - u.base.z) * k;
+  u.shake = (u.shake || 0) * Math.exp(-CONFIG.camera.shakeDecay * dt);
+  cam.position.x = u.base.x + (Math.random() * 2 - 1) * u.shake;
+  cam.position.z = u.base.z + (Math.random() * 2 - 1) * u.shake;
 }

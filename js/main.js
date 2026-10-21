@@ -2,12 +2,14 @@ import * as THREE from '../lib/three.module.min.js';
 import { CONFIG } from './config.js';
 import { createTrackData } from './track.js';
 import { buildTrackMesh } from './trackMesh.js';
-import { createCamera, resizeCamera, followCamera } from './camera.js';
+import { createCamera, resizeCamera, followCamera, snapCamera, shakeCamera } from './camera.js';
 import { createInput } from './input.js';
 import { syncCar } from './car.js';
 import { createSession } from './session.js';
 import { createHud } from './ui.js';
 import { createMenus } from './menus.js';
+import { createEffects } from './effects.js';
+import { createAudio } from './audio.js';
 import { loadSettings, saveSettings, loadBestLap, saveBestLap } from './storage.js';
 
 const canvas = document.getElementById('game');
@@ -26,7 +28,9 @@ scene.add(buildTrackMesh(track));
 const camera = createCamera();
 const input = createInput();
 const session = createSession(scene, track);
+const effects = createEffects(scene);
 const settings = loadSettings();
+const audio = createAudio(settings.muted);
 let bestLap = loadBestLap();
 let newRecord = false;
 
@@ -36,15 +40,15 @@ let resumeState = 'RACING';
 let stateTime = 0;
 const cd = CONFIG.countdown;
 
-function snapCamera() {
-  camera.position.x = session.player.x;
-  camera.position.z = session.player.z;
+function resetView() {
+  snapCamera(camera, session.player.x, session.player.z);
+  effects.clear();
 }
 
 function startRace() {
   session.reset(settings.difficulty);
   newRecord = false;
-  snapCamera();
+  resetView();
   state = 'COUNTDOWN';
   stateTime = 0;
   menus.hide();
@@ -52,7 +56,7 @@ function startRace() {
 
 function toMenu() {
   session.reset(settings.difficulty);
-  snapCamera();
+  resetView();
   state = 'MENU';
   menus.showTitle({ best: bestLap, ...settings });
 }
@@ -84,7 +88,12 @@ const hud = createHud({ onPause: pause });
 const menus = createMenus({
   onRace: startRace,
   onDifficulty: (d) => { settings.difficulty = d; saveSettings(settings); },
-  onMute: () => { settings.muted = !settings.muted; saveSettings(settings); return settings.muted; },
+  onMute: () => {
+    settings.muted = !settings.muted;
+    saveSettings(settings);
+    audio.setMuted(settings.muted);
+    return settings.muted;
+  },
   onResume: resume,
   onRestart: startRace,
   onQuit: toMenu,
@@ -106,6 +115,7 @@ function resize() {
   const h = window.innerHeight;
   renderer.setSize(w, h, false);
   resizeCamera(camera, w, h);
+  effects.setScale(h / CONFIG.camera.viewHeight);
 }
 window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', resize);
@@ -139,6 +149,28 @@ function countdownText() {
   return state === 'RACING' && stateTime < cd.goShow ? 'GO!' : '';
 }
 
+let lastCount = '';
+
+// Camera shake and thump from this frame's strongest hit
+function handleImpacts() {
+  const E = CONFIG.effects;
+  const p = session.player;
+  let thump = 0;
+  for (const c of session.cars) {
+    if (c.impact > E.impactMin) {
+      if (c === p) {
+        shakeCamera(camera, c.impact * CONFIG.camera.shakePerImpact);
+        thump = Math.max(thump, c.impact);
+      } else {
+        const d = Math.hypot(c.x - p.x, c.z - p.z);
+        thump = Math.max(thump, c.impact * Math.max(0, 1 - d / E.impactAudioRange));
+      }
+    }
+    c.impact = 0;
+  }
+  if (thump > 0) audio.thump(thump);
+}
+
 function frame(now) {
   const dt = Math.min((now - last) / 1000, maxFrame);
   last = now;
@@ -152,11 +184,26 @@ function frame(now) {
   const alpha = acc / step;
   for (const c of session.cars) syncCar(c, alpha);
   const p = session.player;
+  const active = state === 'COUNTDOWN' || state === 'RACING';
+  if (active) effects.update(dt, session.cars);
+  handleImpacts();
+  audio.update({
+    active: state === 'RACING' || state === 'FINISHED',
+    speed: Math.min(1, Math.abs(p.speed) / CONFIG.car.maxSpeed),
+    throttle: input.throttle,
+    slip: p.slip,
+    onTrack: p.onTrack !== false,
+  });
   const look = CONFIG.camera.lookAhead;
   followCamera(camera, p.mesh.position.x + p.vx * look, p.mesh.position.z + p.vz * look, dt);
   hud.setVisible(state !== 'MENU');
   input.setTouchVisible(state === 'COUNTDOWN' || state === 'RACING');
-  hud.setCountdown(countdownText());
+  const count = countdownText();
+  if (count !== lastCount) {
+    if (count) audio.beep(count === 'GO!');
+    lastCount = count;
+  }
+  hud.setCountdown(count);
   hud.update(session.race, session.race.entries[0], bestLap);
   renderer.render(scene, camera);
   requestAnimationFrame(frame);

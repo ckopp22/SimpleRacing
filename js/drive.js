@@ -17,6 +17,7 @@ export function driveCar(track, car, controls, dt, c = CONFIG.car) {
   car.z -= q.nz * (q.dist - limit);
   const vn = car.vx * q.nx + car.vz * q.nz; // speed into the wall
   if (vn > 0) {
+    car.impact = Math.max(car.impact, vn);
     car.vx -= q.nx * vn * CONFIG.track.wallKill;
     car.vz -= q.nz * vn * CONFIG.track.wallKill;
   }

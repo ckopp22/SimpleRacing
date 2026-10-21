@@ -35,6 +35,7 @@ function buildMesh(color, c = CONFIG.car) {
 export function createCar({ color, x = 0, z = 0, heading = 0 }) {
   const car = {
     color, name: '',
+    slip: 0, braking: false, impact: 0, // read by effects/audio
     x, z, heading,
     vx: 0, vz: 0, // world velocity
     speed: 0, // signed forward speed
@@ -71,6 +72,9 @@ export function stepCar(car, controls, dt, surface = ROAD, c = CONFIG.car) {
   const rx = -fz, rz = fx;
   let fs = car.vx * fx + car.vz * fz;
   let lat = car.vx * rx + car.vz * rz;
+
+  car.slip = Math.abs(lat);
+  car.braking = controls.brake > 0;
 
   // Throttle / brake / reverse
   const cap = c.maxSpeed * surface.speedMul;

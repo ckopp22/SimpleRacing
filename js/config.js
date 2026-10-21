@@ -13,6 +13,9 @@ export const CONFIG = {
     height: 100,
     follow: 5, // lerp rate (1/s)
     lookAhead: 0.35, // seconds of velocity the camera leads by
+    shakePerImpact: 0.06, // world units of shake per unit of impact speed
+    shakeMax: 1.6,
+    shakeDecay: 7, // 1/s
   },
   loop: {
     step: 1 / 60, // fixed physics timestep (s)
@@ -43,6 +46,36 @@ export const CONFIG = {
     radius: 1.15,
     restitution: 0.35, // bounciness of car-to-car hits
     speedLoss: 0.03, // extra fraction of speed lost per impact
+  },
+  effects: {
+    skidSlip: 6, // sideways speed that leaves tyre marks
+    brakeSkidSpeed: 32, // braking above this speed also marks
+    skidWidth: 0.35,
+    skidMinStep: 0.6, // units between mark segments
+    skidMaxJump: 4,
+    skidSegments: 700,
+    skidLife: 12, // seconds
+    skidAlpha: 0.55,
+    skidY: 0.08,
+    dustMax: 160,
+    dustRate: 40, // particles/s per car at speed 40
+    dustLife: 0.7,
+    dustSize: 2.2, // world units
+    dustAlpha: 0.5,
+    dustSpread: 3,
+    dustY: 2.4,
+    impactMin: 4, // ignore bumps slower than this
+    impactAudioRange: 40, // AI-vs-AI hits are audible this close to the player
+  },
+  audio: {
+    master: 0.5,
+    engineVol: 0.07,
+    engineBase: 55, // Hz at standstill
+    engineRange: 170, // extra Hz at top speed
+    squealVol: 0.08,
+    squealSlip: 5,
+    thumpVol: 0.6,
+    beepVol: 0.15,
   },
   race: {
     laps: 3,
