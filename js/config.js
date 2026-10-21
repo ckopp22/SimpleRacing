@@ -100,14 +100,15 @@ export const CONFIG = {
     cornerSafety: 0.88, // fraction of the physical min turn radius used when picking corner speed
     brakeDecel: 70, // units/s^2 assumed when planning braking
     minCornerSpeed: 14,
-    maxOffset: 4, // units from centreline
-    avoidDist: 20,
-    avoidBehind: 3.5, // also avoid cars this far alongside/behind
-    avoidWidth: 3,
-    avoidOffset: 3.5,
-    followDist: 9, // match the speed of a car this close ahead
-    followMul: 0.99,
-    avoidSmooth: 5, // 1/s
+    maxOffset: 5, // units from centreline
+    avoidDist: 26,
+    avoidBehind: 5, // also avoid cars this far alongside/behind
+    avoidWidth: 4,
+    avoidOffset: 4.5,
+    followDist: 16, // match the speed of a car this close ahead
+    followMul: 0.97,
+    tightGap: 7, // closer than this behind a car: slow below its speed
+    avoidSmooth: 6, // 1/s
     rubberGain: 0.6, // speed multiplier per lap of gap to the player
     rubberMax: 0.08, // max speed-up when the player is ahead
     rubberSlow: 0.01, // max slow-down when the player is behind

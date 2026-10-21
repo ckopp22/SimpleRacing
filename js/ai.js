@@ -77,8 +77,13 @@ export function updateAi(ai, dt, others, rubber = 1, cfg = CONFIG.ai) {
     const ahead = dx * fx + dz * fz;
     const lat = dx * -fz + dz * fx; // + = other car on my right
     if (ahead > -cfg.avoidBehind && ahead < cfg.avoidDist && Math.abs(lat) < cfg.avoidWidth) {
-      nudge = lat > 0 ? cfg.avoidOffset : -cfg.avoidOffset;
-      if (ahead > 0 && ahead < cfg.followDist) follow = Math.min(follow, Math.max(o.speed, 0) * cfg.followMul);
+      // Steer to the side with more room when it's dead ahead
+      const side = Math.abs(lat) > 0.4 ? (lat > 0 ? 1 : -1) : (ai.avoid + params.offset > 0 ? -1 : 1);
+      nudge = side * cfg.avoidOffset;
+      if (ahead > 0 && ahead < cfg.followDist) {
+        const tight = ahead < cfg.tightGap ? 0.9 * ahead / cfg.tightGap : 1;
+        follow = Math.min(follow, Math.max(o.speed, 0) * cfg.followMul * tight);
+      }
     }
   }
   ai.avoid += (nudge - ai.avoid) * Math.min(1, cfg.avoidSmooth * dt);
