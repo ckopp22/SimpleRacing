@@ -119,7 +119,7 @@ export const CONFIG = {
     aiSlots: [0, 1, 3],
   },
   difficulty: { easy: 0.9, normal: 1, hard: 1.06 }, // AI speed multipliers
-  hud: { speedScale: 3 }, // world units/s -> displayed km/h
+  hud: { speedScale: 1.86 }, // world units/s -> displayed mph
   player: {
     color: 0xe53935,
     startBack: 6, // units behind the start line

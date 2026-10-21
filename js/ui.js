@@ -37,7 +37,7 @@ export function createHud({ onPause }) {
       const done = entry.finishTime !== null;
       pos.textContent = `P${race.rankOf(entry)}/${race.entries.length}`;
       lap.textContent = `Lap ${Math.min(entry.laps + 1, race.totalLaps)}/${race.totalLaps}`;
-      speed.textContent = `${Math.round(Math.abs(entry.car.speed) * CONFIG.hud.speedScale)} km/h`;
+      speed.textContent = `${Math.round(Math.abs(entry.car.speed) * CONFIG.hud.speedScale)} mph`;
       time.textContent = formatTime(done ? entry.finishTime : race.currentLap(entry));
       best.textContent = formatTime(bestLap);
       banner.textContent = done ? `FINISH ${formatTime(entry.finishTime)}` : '';
