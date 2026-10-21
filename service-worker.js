@@ -1,5 +1,5 @@
 // Bump CACHE on every deploy so installed copies pick up the new build.
-const CACHE = 'topdownracer-v12';
+const CACHE = 'topdownracer-v13';
 
 const SHELL = [
   './',

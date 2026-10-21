@@ -34,7 +34,38 @@ function mergeGeometries(list) {
   return out;
 }
 
+const palm = () => {
+  const parts = [new THREE.CylinderGeometry(0.3, 0.45, 5, 6).translate(0, 2.5, 0)];
+  for (let i = 0; i < 6; i++) parts.push(new THREE.BoxGeometry(4.6, 0.15, 1).rotateZ(-0.35).translate(2.3, 5.2, 0).rotateY((i * Math.PI) / 3));
+  return mergeGeometries(parts);
+};
+const boat = () => mergeGeometries([
+  new THREE.BoxGeometry(1.6, 0.8, 4.6).translate(0, 0.4, 0),
+  new THREE.BoxGeometry(1.1, 0.9, 1.6).translate(0, 1.2, -0.3),
+]);
+const umbrella = () => mergeGeometries([
+  new THREE.CylinderGeometry(0.08, 0.08, 2.2, 5).translate(0, 1.1, 0),
+  new THREE.ConeGeometry(1.9, 0.9, 10).translate(0, 2.5, 0),
+]);
+
 const THEMES = {
+  park: [
+    { geo: () => cone(1, 2.6), colors: [0x2e7d32, 0x388e3c, 0x1b5e20], size: [2.6, 4.6], share: 0.45 },
+    { geo: () => ball(1, 1.2), colors: [0x43a047, 0x558b2f, 0x66bb6a], size: [2.2, 3.8], share: 0.4 },
+    { geo: () => rock(1), colors: [0x90a4ae, 0x78909c], size: [1.2, 2.2], share: 0.15 },
+  ],
+  coast: [
+    { geo: palm, colors: [0x2e8b3d, 0x3c9d4a], size: [1.1, 1.5], share: 0.2 },
+    { geo: () => new THREE.BoxGeometry(1.6, 1, 1.6).translate(0, 0.5, 0), colors: [0xf5f5f0, 0xe6ddd0, 0xd7b9a0, 0xc4a484, 0x37474f], size: [4, 7], share: 0.4, tall: [3, 9] },
+    { geo: boat, colors: [0xffffff, 0xeceff1, 0xfff59d], size: [1.2, 1.7], share: 0.3, zone: 'water' },
+    { geo: () => rock(1), colors: [0x90a4ae, 0x78909c], size: [1.2, 2.4], share: 0.1 },
+  ],
+  beach: [
+    { geo: palm, colors: [0x2e8b3d, 0x3c9d4a], size: [1.1, 1.5], share: 0.25 },
+    { geo: () => ball(1, 0.9), colors: [0x7cb342, 0x9ccc65, 0x689f38], size: [2, 3.4], share: 0.35 },
+    { geo: umbrella, colors: [0xe53935, 0xfdd835, 0x1e88e5, 0xffffff, 0xff7043], size: [1.2, 1.6], share: 0.3, zone: 'sand' },
+    { geo: () => rock(1), colors: [0xb0a090, 0x8d8272], size: [1.2, 2.6], share: 0.1 },
+  ],
   forest: [
     { geo: () => cone(1, 2.6), colors: [0x2e7d32, 0x388e3c, 0x1b5e20], size: [2.6, 4.6], share: 0.55 },
     { geo: () => ball(1, 1.2), colors: [0x43a047, 0x558b2f, 0x66bb6a], size: [2.2, 3.8], share: 0.3 },
@@ -55,14 +86,35 @@ const THEMES = {
   ],
 };
 
+const inPatch = (patches, kind, x, z, grow = 1) =>
+  patches.some((p) => p.kind === kind && ((x - p.x) / (p.rx * grow)) ** 2 + ((z - p.z) / (p.rz * grow)) ** 2 < 1);
+
+// Flat ellipses on the ground: water gets a lighter shore ring underneath
+function addPatches(group, patches, theme) {
+  const colors = { water: 0x2f8fd8, sand: 0xf0d9a0 };
+  const shore = theme === 'beach' ? 0xf0d9a0 : 0xcfd8dc;
+  const add = (p, color, grow, y) => {
+    const m = new THREE.Mesh(new THREE.CircleGeometry(1, 40), new THREE.MeshBasicMaterial({ color, polygonOffset: true, polygonOffsetFactor: -1 }));
+    m.rotation.x = -Math.PI / 2;
+    m.scale.set(p.rx * grow, p.rz * grow, 1);
+    m.position.set(p.x, y, p.z);
+    group.add(m);
+  };
+  for (const p of patches) {
+    if (p.kind === 'water') add(p, shore, 1.1, 0.006);
+    add(p, colors[p.kind], 1, 0.01);
+  }
+}
+
 function rng(seed) {
   let s = seed >>> 0;
   return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
 }
 
-export function buildScenery(data, theme, seed = 1) {
+export function buildScenery(data, theme, seed = 1, patches = []) {
   const kinds = THEMES[theme];
   const group = new THREE.Group();
+  addPatches(group, patches, theme);
   if (!kinds) return group;
   const S = CONFIG.scenery;
   const P = data.points;
@@ -100,11 +152,19 @@ export function buildScenery(data, theme, seed = 1) {
   const picks = kinds.map(() => []);
   const target = Math.round(((maxX - minX) * (maxZ - minZ)) * S.density);
   for (let n = 0; n < target * 3 && placed.length < target; n++) {
-    const x = minX + rand() * (maxX - minX);
-    const z = minZ + rand() * (maxZ - minZ);
     let r = rand(), ki = 0;
     while (ki < kinds.length - 1 && r > kinds[ki].share) { r -= kinds[ki].share; ki++; }
     const k = kinds[ki];
+    let x = minX + rand() * (maxX - minX);
+    let z = minZ + rand() * (maxZ - minZ);
+    if (k.zone) {
+      const zones = patches.filter((p) => p.kind === k.zone);
+      if (!zones.length) continue;
+      const p = zones[Math.floor(rand() * zones.length)];
+      const a = rand() * Math.PI * 2, d = Math.sqrt(rand()) * 0.85;
+      x = p.x + Math.cos(a) * p.rx * d;
+      z = p.z + Math.sin(a) * p.rz * d;
+    } else if (inPatch(patches, 'water', x, z, 1.1)) continue;
     const size = k.size[0] + rand() * (k.size[1] - k.size[0]);
     const reach = k.tall ? size * 1.45 : size;
     if (nearest(x, z) < clear + reach) continue;

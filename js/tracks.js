@@ -10,7 +10,7 @@ export function makeTrack(index) {
   const data = createTrackData(cfg);
   const world = { ...CONFIG.world, groundColor: def.groundColor ?? CONFIG.world.groundColor };
   const mesh = buildTrackMesh(data, cfg, world);
-  mesh.add(buildScenery(data, def.scenery, index + 1));
+  mesh.add(buildScenery(data, def.scenery, index + 1, def.patches));
   return { id: def.id, name: def.name, data, mesh };
 }
 
