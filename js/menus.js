@@ -5,7 +5,7 @@ const hex = (c) => `#${c.toString(16).padStart(6, '0')}`;
 const ordinal = (n) => ['1st', '2nd', '3rd', '4th'][n - 1] ?? `${n}th`;
 
 // Title, pause and results screens. Handlers: onRace, onDifficulty, onMute,
-// onResume, onRestart, onQuit, onAgain, onMenu, onTrack(index) -> best lap there.
+// onResume, onRestart, onQuit, onAgain, onMenu, onTrack(index) -> best lap there, onCar(id).
 export function createMenus(h) {
   const el = document.createElement('div');
   el.id = 'screen';
@@ -16,16 +16,25 @@ export function createMenus(h) {
   const on = (id, fn) => el.querySelector(`#${id}`).addEventListener('click', fn);
   const touch = matchMedia('(pointer: coarse)').matches;
 
-  function showTitle({ best, difficulty, muted, tracks, trackIndex }) {
+  function showTitle({ best, difficulty, muted, tracks, trackIndex, cars, car }) {
+    let ci = Math.max(0, cars.indexOf(car));
     el.innerHTML = `
       <h1>Top Down Racer</h1>
       <p class="sub" id="m-best">Best lap: ${formatTime(best)}</p>
       ${btn('m-race', 'Race', 'primary')}
+      <div class="seg carpick">${btn('m-cprev', '&lsaquo;')}<img id="m-car" src="assets/cars/${cars[ci]}.png" alt="car">${btn('m-cnext', '&rsaquo;')}</div>
       <div class="seg" data-g="track">${tracks.map((n, i) => btn(`m-t-${i}`, n, i === trackIndex ? 'on' : '')).join('')}</div>
       <div class="seg" data-g="diff">${DIFFS.map((d) => btn(`m-d-${d}`, d[0].toUpperCase() + d.slice(1), d === difficulty ? 'on' : '')).join('')}</div>
       ${btn('m-mute', muted ? 'Sound: Off' : 'Sound: On')}
       <p class="hint">${touch ? 'Left: gas / brake &middot; Right: steer' : 'W A S D or arrows to drive &middot; Esc pause &middot; R restart'}</p>`;
     on('m-race', h.onRace);
+    const cycle = (d) => {
+      ci = (ci + d + cars.length) % cars.length;
+      el.querySelector('#m-car').src = `assets/cars/${cars[ci]}.png`;
+      h.onCar(cars[ci]);
+    };
+    on('m-cprev', () => cycle(-1));
+    on('m-cnext', () => cycle(1));
     tracks.forEach((_, i) => on(`m-t-${i}`, () => {
       el.querySelectorAll('[data-g=track] button').forEach((b) => b.classList.toggle('on', b.id === `m-t-${i}`));
       el.querySelector('#m-best').textContent = `Best lap: ${formatTime(h.onTrack(i))}`;

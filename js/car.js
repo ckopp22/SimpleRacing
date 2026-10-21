@@ -3,6 +3,8 @@ import { CONFIG } from './config.js';
 
 export const ROAD = { speedMul: 1, dragAdd: 0, gripMul: 1 };
 
+const loader = new THREE.TextureLoader();
+const textures = {};
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 function box(w, h, l, color, x, y, z) {
@@ -32,7 +34,36 @@ function buildMesh(color, c = CONFIG.car) {
   return g;
 }
 
-export function createCar({ color, x = 0, z = 0, heading = 0 }) {
+// Top-down sprite lying on the roof; the placeholder boxes hide once it loads
+export function setCarSprite(car, id, c = CONFIG.car) {
+  const g = car.mesh;
+  if (g.userData.sprite) g.remove(g.userData.sprite);
+  g.userData.sprite = null;
+  if (!id) return;
+  const tex = textures[id] ??= loader.load(`assets/cars/${id}.png`);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  const apply = () => {
+    if (g.userData.spriteId !== id) return;
+    const { width, height } = tex.image;
+    const m = new THREE.Mesh(
+      new THREE.PlaneGeometry(c.length * (width / height), c.length),
+      new THREE.MeshBasicMaterial({ map: tex, transparent: true, alphaTest: 0.5 })
+    );
+    m.rotation.set(-Math.PI / 2, 0, Math.PI);
+    m.position.y = 1.4;
+    g.add(m);
+    g.userData.sprite = m;
+    for (const b of g.userData.body) b.visible = false;
+  };
+  g.userData.spriteId = id;
+  if (tex.image) apply(); else waitFor(tex, apply);
+}
+
+function waitFor(tex, fn) {
+  const t = setInterval(() => { if (tex.image) { clearInterval(t); fn(); } }, 30);
+}
+
+export function createCar({ color, sprite, x = 0, z = 0, heading = 0 }) {
   const car = {
     color, name: '',
     perf: { speed: 1, accel: 1, turn: 1 }, // per-car handicap/boost multipliers
@@ -44,6 +75,8 @@ export function createCar({ color, x = 0, z = 0, heading = 0 }) {
     prev: { x, z, heading },
     mesh: buildMesh(color),
   };
+  car.mesh.userData.body = car.mesh.children.slice();
+  setCarSprite(car, sprite);
   syncCar(car, 1);
   return car;
 }

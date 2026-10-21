@@ -1,5 +1,5 @@
 import { CONFIG } from './config.js';
-import { createCar, placeCar } from './car.js';
+import { createCar, placeCar, setCarSprite } from './car.js';
 import { queryTrack } from './track.js';
 import { driveCar } from './drive.js';
 import { resolveCars } from './collision.js';
@@ -7,13 +7,18 @@ import { buildSpeedProfile, createAi, updateAi } from './ai.js';
 import { createRace } from './race.js';
 
 // One race: owns the cars, AI drivers and race state. reset() starts a fresh grid.
-export function createSession(scene, initialTrack) {
+export function createSession(scene, initialTrack, playerSprite) {
   let track = initialTrack;
   let profile = buildSpeedProfile(track);
-  const player = createCar({ color: CONFIG.player.color });
+  const player = createCar({ color: CONFIG.player.color, sprite: playerSprite });
   player.name = 'You';
-  const aiCars = CONFIG.ai.cars.map((p) => {
-    const car = createCar({ color: p.color });
+  const pickAi = (i) => {
+    const pool = CONFIG.cars.filter((id) => id !== player.spriteId);
+    return pool[(i * 7 + 3) % pool.length];
+  };
+  player.spriteId = playerSprite;
+  const aiCars = CONFIG.ai.cars.map((p, i) => {
+    const car = createCar({ color: p.color, sprite: pickAi(i) });
     car.name = p.name;
     return car;
   });
@@ -30,6 +35,13 @@ export function createSession(scene, initialTrack) {
   }
 
   const s = { cars, player, ais: [], race: null, diffMul: 1 };
+
+  // Change the player's car; AI cars are re-picked so none matches it
+  s.setPlayerCar = (id) => {
+    player.spriteId = id;
+    setCarSprite(player, id);
+    aiCars.forEach((c, i) => setCarSprite(c, pickAi(i)));
+  };
 
   // Swap circuits; call reset() afterwards to put the cars on the new grid
   s.setTrack = (t) => {

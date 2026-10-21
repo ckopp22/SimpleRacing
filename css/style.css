@@ -139,3 +139,6 @@ html, body {
   }
   #rotate div::first-line { font-size: 64px; }
 }
+#screen .carpick { align-items: center; }
+#screen .carpick button { min-width: 56px; padding: 0; }
+#screen .carpick img { height: 96px; width: 80px; object-fit: contain; }

@@ -27,7 +27,7 @@ let current = makeTrack(Math.max(0, TRACKS.findIndex((t) => t.id === settings.tr
 scene.add(current.mesh);
 const camera = createCamera();
 const input = createInput();
-const session = createSession(scene, current.data);
+const session = createSession(scene, current.data, CONFIG.cars.includes(settings.car) ? settings.car : CONFIG.cars[0]);
 const effects = createEffects(scene);
 const audio = createAudio(settings.muted);
 let bestLap = loadBestLap(current.id);
@@ -72,7 +72,7 @@ function toMenu() {
   session.reset(settings.difficulty);
   resetView();
   state = 'MENU';
-  menus.showTitle({ best: bestLap, ...settings, tracks: TRACKS.map((t) => t.name), trackIndex: TRACKS.findIndex((t) => t.id === current.id) });
+  menus.showTitle({ best: bestLap, ...settings, cars: CONFIG.cars, tracks: TRACKS.map((t) => t.name), trackIndex: TRACKS.findIndex((t) => t.id === current.id) });
 }
 
 function pause() {
@@ -102,6 +102,7 @@ const hud = createHud({ onPause: pause });
 const menus = createMenus({
   onRace: startRace,
   onTrack: selectTrack,
+  onCar: (id) => { session.setPlayerCar(id); settings.car = id; saveSettings(settings); },
   onDifficulty: (d) => { settings.difficulty = d; saveSettings(settings); },
   onMute: () => {
     settings.muted = !settings.muted;
