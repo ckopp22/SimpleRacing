@@ -68,15 +68,17 @@ export function updateAi(ai, dt, others, rubber = 1, cfg = CONFIG.ai) {
     return controls;
   }
 
-  // Avoidance: nudge away from a car just ahead
+  // Avoidance: nudge away from cars just ahead or alongside, and don't rear-end them
   let nudge = 0;
+  let follow = Infinity;
   for (const o of others) {
     if (o === car) continue;
     const dx = o.x - car.x, dz = o.z - car.z;
     const ahead = dx * fx + dz * fz;
     const lat = dx * -fz + dz * fx; // + = other car on my right
-    if (ahead > 0 && ahead < cfg.avoidDist && Math.abs(lat) < cfg.avoidWidth) {
+    if (ahead > -cfg.avoidBehind && ahead < cfg.avoidDist && Math.abs(lat) < cfg.avoidWidth) {
       nudge = lat > 0 ? cfg.avoidOffset : -cfg.avoidOffset;
+      if (ahead > 0 && ahead < cfg.followDist) follow = Math.min(follow, Math.max(o.speed, 0) * cfg.followMul);
     }
   }
   ai.avoid += (nudge - ai.avoid) * Math.min(1, cfg.avoidSmooth * dt);
@@ -110,7 +112,7 @@ export function updateAi(ai, dt, others, rubber = 1, cfg = CONFIG.ai) {
   // Speed: slowest safe speed over the look-ahead window
   let safe = Infinity;
   for (let k = 0; k <= la; k++) safe = Math.min(safe, profile[(idx + k) % n]);
-  const target = safe * params.speedMul * rubber;
+  const target = Math.min(safe * params.speedMul * rubber, follow);
   controls.throttle = speed < target ? 1 : 0;
   controls.brake = speed > target + 2 ? clamp((speed - target) / 8, 0, 1) : 0;
   return controls;

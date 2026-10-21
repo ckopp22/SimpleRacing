@@ -99,27 +99,30 @@ export const CONFIG = {
     brakeDecel: 52, // units/s^2 assumed when planning braking
     minCornerSpeed: 14,
     maxOffset: 4, // units from centreline
-    avoidDist: 16,
-    avoidWidth: 2.6,
-    avoidOffset: 3,
-    avoidSmooth: 3, // 1/s
+    avoidDist: 20,
+    avoidBehind: 3.5, // also avoid cars this far alongside/behind
+    avoidWidth: 3,
+    avoidOffset: 3.5,
+    followDist: 9, // match the speed of a car this close ahead
+    followMul: 0.99,
+    avoidSmooth: 5, // 1/s
     rubberGain: 0.6, // speed multiplier per lap of gap to the player
     rubberMax: 0.08, // max speed-up when the player is ahead
     rubberSlow: 0.01, // max slow-down when the player is behind
     mistakeEvery: 4, // seconds between mistake rolls
-    mistakeSteer: 0.35,
-    mistakeTime: 0.5,
+    mistakeSteer: 0.2,
+    mistakeTime: 0.3,
     stuckSpeed: 2,
     stuckTime: 1.5,
     reverseTime: 1.2,
     cars: [
-      { name: 'Blue', color: 0x1e88e5, speedMul: 0.97, offset: -2.5, wobble: 0.8, mistake: 0.25 },
-      { name: 'Yellow', color: 0xfdd835, speedMul: 1.0, offset: 2.0, wobble: 0.6, mistake: 0.18 },
-      { name: 'Green', color: 0x43a047, speedMul: 1.03, offset: 0.0, wobble: 0.5, mistake: 0.12 },
+      { name: 'Blue', color: 0x1e88e5, speedMul: 0.97, offset: -2.5, wobble: 0.5, mistake: 0.06 },
+      { name: 'Yellow', color: 0xfdd835, speedMul: 1.0, offset: 2.0, wobble: 0.4, mistake: 0.04 },
+      { name: 'Green', color: 0x43a047, speedMul: 1.03, offset: 0.0, wobble: 0.3, mistake: 0.02 },
     ],
     aiSlots: [0, 1, 3],
   },
-  difficulty: { easy: 0.92, normal: 1.02, hard: 1.07 }, // AI speed multipliers
+  difficulty: { easy: 0.92, normal: 1.02, hard: 1.1 }, // AI speed multipliers
   hud: { speedScale: 1.86 }, // world units/s -> displayed mph
   player: {
     color: 0xe53935,
