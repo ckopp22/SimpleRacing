@@ -1,5 +1,5 @@
 // Bump CACHE on every deploy so installed copies pick up the new build.
-const CACHE = 'topdownracer-v11';
+const CACHE = 'topdownracer-v12';
 
 const SHELL = [
   './',
@@ -19,6 +19,7 @@ const SHELL = [
   './js/main.js',
   './js/menus.js',
   './js/race.js',
+  './js/scenery.js',
   './js/session.js',
   './js/storage.js',
   './js/touch.js',

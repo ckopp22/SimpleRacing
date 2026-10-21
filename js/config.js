@@ -133,6 +133,11 @@ export const CONFIG = {
     hard: { speed: 1, accel: 1, turn: 1 },
   },
   hud: { speedScale: 1.86 }, // world units/s -> displayed mph
+  scenery: {
+    margin: 4, // gap between the barrier and any prop
+    spread: 110, // how far past the track bounds props are scattered
+    density: 0.0011, // props per square unit (upper bound; spacing may cut it)
+  },
   ghost: { opacity: 0.4, every: 2 }, // every = record one sample per N physics ticks
   cars: ['car01', 'car03', 'car04', 'car06', 'car08', 'car09', 'car10', 'car11', 'car12', 'car13', 'car14', 'car15', 'car16', 'car17', 'car18', 'car19', 'car20', 'car21', 'car22', 'car23', 'car24', 'car25', 'car26', 'car27', 'car28', 'car29', 'car30', 'car31', 'car32', 'car33', 'car34', 'car35', 'car36', 'car37', 'car38', 'car40', 'car41', 'car42', 'car43'], // sprite ids in assets/cars/
   player: {
@@ -174,6 +179,7 @@ export const TRACKS = [
   {
     id: 'classic',
     name: 'Classic',
+    scenery: 'forest',
     points: [
       [-100, 110], [0, 110], [100, 110],
       [170, 90], [195, 30],
@@ -189,6 +195,7 @@ export const TRACKS = [
   {
     id: 'speedway',
     name: 'Speedway',
+    scenery: 'desert',
     groundColor: 0xb89a5e,
     asphaltColor: 0x34343a,
     points: [
@@ -201,6 +208,7 @@ export const TRACKS = [
   {
     id: 'alpine',
     name: 'Alpine',
+    scenery: 'snow',
     groundColor: 0xa9b8c4,
     asphaltColor: 0x4a4f57,
     points: [
@@ -216,6 +224,7 @@ export const TRACKS = [
   {
     id: 'city',
     name: 'City',
+    scenery: 'city',
     groundColor: 0x6d7378,
     asphaltColor: 0x2e2f34,
     width: 12,
