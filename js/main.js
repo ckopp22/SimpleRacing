@@ -137,7 +137,7 @@ const menus = createMenus({
 });
 
 window.addEventListener('keydown', (e) => {
-  if (e.repeat) return;
+  if (e.repeat || e.target.tagName === 'INPUT') return;
   if (e.code === 'Escape' || e.code === 'KeyP') (state === 'PAUSED' ? resume : pause)();
   else if (e.code === 'KeyR' && state !== 'MENU' && !session.net) startRace();
 });

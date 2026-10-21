@@ -12,6 +12,7 @@ const HANDLED = new Set(Object.values(KEYS).flat());
 export function createInput() {
   const down = new Set();
   window.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT') return; // typing in a text field
     if (HANDLED.has(e.code)) {
       down.add(e.code);
       e.preventDefault();
