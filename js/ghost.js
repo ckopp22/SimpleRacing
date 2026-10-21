@@ -30,7 +30,7 @@ export function createGhost(scene) {
   }
 
   // Call after each physics tick with the player's race entry
-  function update(entry, raceTime, step) {
+  function update(entry, raceTime, step, enabled = true) {
     const p = entry.car;
     if (recStart !== null && entry.lapStart !== recStart) {
       const t = entry.lapTimes[entry.lapTimes.length - 1];
@@ -49,9 +49,9 @@ export function createGhost(scene) {
 
     // Playback
     const m = car.mesh;
-    const f = data && entry.finishTime === null ? (raceTime - entry.lapStart) / (step * G.every) : -1;
+    const f = enabled && data && entry.finishTime === null ? (raceTime - entry.lapStart) / (step * G.every) : -1;
     const i = Math.floor(f);
-    if (!data || f < 0 || (i + 1) * 3 >= data.s.length) {
+    if (f < 0 || (i + 1) * 3 >= data.s.length) {
       m.visible = false;
       return;
     }

@@ -5,7 +5,7 @@ const hex = (c) => `#${c.toString(16).padStart(6, '0')}`;
 const ordinal = (n) => ['1st', '2nd', '3rd', '4th'][n - 1] ?? `${n}th`;
 
 // Title, pause and results screens. Handlers: onRace, onDifficulty, onMute,
-// onResume, onRestart, onQuit, onAgain, onMenu, onTrack(index) -> best lap there, onCar(id).
+// onResume, onRestart, onQuit, onAgain, onMenu, onTrack(index) -> best lap there, onCar(id), onGhost() -> enabled.
 export function createMenus(h) {
   const el = document.createElement('div');
   el.id = 'screen';
@@ -14,19 +14,18 @@ export function createMenus(h) {
 
   const btn = (id, label, cls = '') => `<button id="${id}" class="${cls}">${label}</button>`;
   const on = (id, fn) => el.querySelector(`#${id}`).addEventListener('click', fn);
-  const touch = matchMedia('(pointer: coarse)').matches;
 
-  function showTitle({ best, difficulty, muted, tracks, trackIndex, cars, car }) {
+  function showTitle({ best, difficulty, muted, tracks, trackIndex, cars, car, ghost }) {
     let ci = Math.max(0, cars.indexOf(car));
     el.innerHTML = `
-      <h1>Top Down Racer</h1>
+      <h1>Simply Racing</h1>
+      ${btn('m-mute', muted ? '&#128263;' : '&#128266;', 'corner')}
       <p class="sub" id="m-best">Best lap: ${formatTime(best)}</p>
       ${btn('m-race', 'Race', 'primary')}
       <div class="seg carpick">${btn('m-cprev', '&lsaquo;')}<img id="m-car" src="assets/cars/${cars[ci]}.png" alt="car">${btn('m-cnext', '&rsaquo;')}</div>
       <div class="seg" data-g="track">${tracks.map((n, i) => btn(`m-t-${i}`, n, i === trackIndex ? 'on' : '')).join('')}</div>
       <div class="seg" data-g="diff">${DIFFS.map((d) => btn(`m-d-${d}`, d[0].toUpperCase() + d.slice(1), d === difficulty ? 'on' : '')).join('')}</div>
-      ${btn('m-mute', muted ? 'Sound: Off' : 'Sound: On')}
-      <p class="hint">${touch ? 'Left: gas / brake &middot; Right: steer' : 'W A S D or arrows to drive &middot; Esc pause &middot; R restart'}</p>`;
+      ${btn('m-ghost', ghost ? 'Ghost Car: On' : 'Ghost Car: Off')}`;
     on('m-race', h.onRace);
     const cycle = (d) => {
       ci = (ci + d + cars.length) % cars.length;
@@ -45,7 +44,11 @@ export function createMenus(h) {
     }));
     on('m-mute', () => {
       const m = h.onMute();
-      el.querySelector('#m-mute').textContent = m ? 'Sound: Off' : 'Sound: On';
+      el.querySelector('#m-mute').innerHTML = m ? '&#128263;' : '&#128266;';
+    });
+    on('m-ghost', () => {
+      const g = h.onGhost();
+      el.querySelector('#m-ghost').textContent = g ? 'Ghost Car: On' : 'Ghost Car: Off';
     });
     el.hidden = false;
   }

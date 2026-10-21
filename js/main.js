@@ -109,6 +109,11 @@ const menus = createMenus({
   onTrack: selectTrack,
   onCar: (id) => { session.setPlayerCar(id); settings.car = id; saveSettings(settings); },
   onDifficulty: (d) => { settings.difficulty = d; saveSettings(settings); },
+  onGhost: () => {
+    settings.ghost = !settings.ghost;
+    saveSettings(settings);
+    return settings.ghost;
+  },
   onMute: () => {
     settings.muted = !settings.muted;
     saveSettings(settings);
@@ -156,7 +161,7 @@ function tick() {
     return;
   }
   session.tick(step, input.update());
-  ghost.update(session.race.entries[0], session.race.time, step);
+  ghost.update(session.race.entries[0], session.race.time, step, settings.ghost);
   const best = session.race.entries[0].best;
   if (best !== null && (bestLap === null || best < bestLap)) {
     bestLap = best;

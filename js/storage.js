@@ -18,7 +18,7 @@ function write(data) {
   }
 }
 
-export const loadSettings = () => ({ difficulty: 'normal', muted: false, track: 'classic', car: CONFIG.cars[0], ...read().settings });
+export const loadSettings = () => ({ difficulty: 'normal', muted: false, ghost: true, track: 'classic', car: CONFIG.cars[0], ...read().settings });
 export const saveSettings = (settings) => write({ ...read(), settings });
 // Best laps are kept per track id (the old single bestLap belonged to 'classic')
 export const loadBestLap = (id) => read().bestLaps?.[id] ?? (id === 'classic' ? read().bestLap ?? null : null);
