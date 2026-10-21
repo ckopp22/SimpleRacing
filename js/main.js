@@ -1,5 +1,8 @@
 import * as THREE from '../lib/three.module.min.js';
 import { CONFIG } from './config.js';
+import { createTrackData } from './track.js';
+import { buildTrackMesh } from './trackMesh.js';
+import { createCamera, resizeCamera, followCamera } from './camera.js';
 
 const canvas = document.getElementById('game');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -7,38 +10,37 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, CONFIG.render.maxPixelR
 renderer.setClearColor(CONFIG.render.clearColor);
 
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(CONFIG.scaffold.cameraFov, 1, 0.1, 100);
-camera.position.z = CONFIG.scaffold.cameraDistance;
-
-scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-const sun = new THREE.DirectionalLight(0xffffff, 1.5);
-sun.position.set(3, 5, 4);
+scene.add(new THREE.AmbientLight(0xffffff, CONFIG.light.ambient));
+const sun = new THREE.DirectionalLight(0xffffff, CONFIG.light.sun);
+sun.position.set(...CONFIG.light.sunPos);
 scene.add(sun);
 
-const s = CONFIG.scaffold.cubeSize;
-const cube = new THREE.Mesh(
-  new THREE.BoxGeometry(s, s, s),
-  new THREE.MeshStandardMaterial({ color: CONFIG.scaffold.cubeColor })
-);
-scene.add(cube);
+const track = createTrackData();
+scene.add(buildTrackMesh(track));
+const camera = createCamera();
+camera.position.x = track.points[0].x;
+camera.position.z = track.points[0].z;
 
 function resize() {
   const w = window.innerWidth;
   const h = window.innerHeight;
   renderer.setSize(w, h, false);
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
+  resizeCamera(camera, w, h);
 }
 window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', resize);
 resize();
 
+// M2 only: camera tours the centreline so the whole track can be inspected.
 let last = performance.now();
+let dist = 0;
+const lengthPerSample = track.curve.getLength() / track.count;
 function frame(now) {
   const dt = Math.min((now - last) / 1000, 0.1);
   last = now;
-  cube.rotation.x += CONFIG.scaffold.cubeSpinSpeed * dt;
-  cube.rotation.y += CONFIG.scaffold.cubeSpinSpeed * dt;
+  dist += CONFIG.camera.demoSpeed * dt;
+  const p = track.points[Math.floor(dist / lengthPerSample) % track.count];
+  followCamera(camera, p.x, p.z, dt);
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
 }
