@@ -97,7 +97,7 @@ function finishRace() {
   ghost.reset(current.id, session.player.spriteId);
   const { race } = session;
   const won = race.entries[0].finishTime !== null && race.rankOf(race.entries[0]) === 1;
-  if (won) saveWin(current.id, session.player.spriteId);
+  if (won) saveWin(current.id, settings.difficulty);
   menus.showResults({
     won,
     rows: race.order.map((e) => ({ name: e.car.name, color: e.car.color, time: e.finishTime, you: e.car === session.player })),
@@ -110,7 +110,7 @@ const hud = createHud({ onPause: pause });
 const menus = createMenus({
   onRace: startRace,
   onTrack: selectTrack,
-  hasWon: (trackIndex, carId) => hasWon(TRACKS[trackIndex].id, carId),
+  hasWon: (trackIndex, diff) => hasWon(TRACKS[trackIndex].id, diff),
   onCar: (id) => { session.setPlayerCar(id); settings.car = id; saveSettings(settings); },
   onDifficulty: (d) => { settings.difficulty = d; saveSettings(settings); },
   onGhost: () => {

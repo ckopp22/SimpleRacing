@@ -31,9 +31,9 @@ export const saveGhost = (id, g) => {
   const data = read();
   write({ ...data, ghosts: { ...data.ghosts, [id]: g } });
 };
-// Wins (1st place finishes) are kept per track, per car: wins[trackId][carId]
-export const hasWon = (trackId, carId) => !!read().wins?.[trackId]?.[carId];
-export const saveWin = (trackId, carId) => {
+// Wins (1st place finishes) are kept per track, per difficulty: wins[trackId][difficulty]
+export const hasWon = (trackId, difficulty) => !!read().wins?.[trackId]?.[difficulty];
+export const saveWin = (trackId, difficulty) => {
   const data = read();
-  write({ ...data, wins: { ...data.wins, [trackId]: { ...data.wins?.[trackId], [carId]: true } } });
+  write({ ...data, wins: { ...data.wins, [trackId]: { ...data.wins?.[trackId], [difficulty]: true } } });
 };

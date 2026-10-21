@@ -5,7 +5,7 @@ const hex = (c) => `#${c.toString(16).padStart(6, '0')}`;
 const ordinal = (n) => ['1st', '2nd', '3rd', '4th'][n - 1] ?? `${n}th`;
 
 // Title, pause and results screens. Handlers: onRace, onDifficulty, onMute,
-// onResume, onRestart, onQuit, onAgain, onMenu, onTrack(index) -> best lap there, onCar(id), onGhost() -> enabled, hasWon(trackIndex, carId).
+// onResume, onRestart, onQuit, onAgain, onMenu, onTrack(index) -> best lap there, onCar(id), onGhost() -> enabled, hasWon(trackIndex, difficulty).
 export function createMenus(h) {
   const el = document.createElement('div');
   el.id = 'screen';
@@ -22,18 +22,17 @@ export function createMenus(h) {
       ${btn('m-mute', muted ? '&#128263;' : '&#128266;', 'corner')}
       <p class="sub" id="m-best">Best lap: ${formatTime(best)}</p>
       ${btn('m-race', 'Race', 'primary')}
-      <div class="seg carpick">${btn('m-cprev', '&lsaquo;')}<span class="card"><img id="m-car" src="assets/cars/${cars[ci]}.png" alt="car"><b id="m-trophy" hidden>&#127942;</b></span>${btn('m-cnext', '&rsaquo;')}</div>
+      <div class="seg carpick">${btn('m-cprev', '&lsaquo;')}<img id="m-car" src="assets/cars/${cars[ci]}.png" alt="car">${btn('m-cnext', '&rsaquo;')}</div>
       <div class="seg trackpick">${btn('m-tprev', '&lsaquo;')}<span id="m-track">${tracks[trackIndex]}</span>${btn('m-tnext', '&rsaquo;')}</div>
-      <div class="seg" data-g="diff">${DIFFS.map((d) => btn(`m-d-${d}`, d[0].toUpperCase() + d.slice(1), d === difficulty ? 'on' : '')).join('')}</div>
+      <div class="seg" data-g="diff">${DIFFS.map((d) => btn(`m-d-${d}`, `${d[0].toUpperCase() + d.slice(1)}<b id="m-w-${d}" hidden>&#127942;</b>`, d === difficulty ? 'on' : '')).join('')}</div>
       ${btn('m-ghost', ghost ? 'Ghost Car: On' : 'Ghost Car: Off')}`;
     on('m-race', h.onRace);
-    const showTrophy = () => { el.querySelector('#m-trophy').hidden = !h.hasWon(trackIndex, cars[ci]); };
+    const showTrophy = () => DIFFS.forEach((d) => { el.querySelector(`#m-w-${d}`).hidden = !h.hasWon(trackIndex, d); });
     showTrophy();
     const cycle = (d) => {
       ci = (ci + d + cars.length) % cars.length;
       el.querySelector('#m-car').src = `assets/cars/${cars[ci]}.png`;
       h.onCar(cars[ci]);
-      showTrophy();
     };
     on('m-cprev', () => cycle(-1));
     on('m-cnext', () => cycle(1));

@@ -146,6 +146,6 @@ html, body {
 #screen .trackpick { align-items: center; }
 #screen .trackpick button { min-width: 56px; padding: 0; }
 #screen .trackpick span { min-width: 120px; text-align: center; font: 700 22px system-ui, sans-serif; }
-#screen .carpick .card { position: relative; display: inline-block; }
-#screen .carpick .card b { position: absolute; top: -6px; right: -14px; font-size: 28px; }
+#screen .seg button { position: relative; }
+#screen .seg button b { position: absolute; top: -12px; right: -8px; font-size: 24px; line-height: 1; }
 #screen .confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
