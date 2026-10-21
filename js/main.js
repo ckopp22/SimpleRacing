@@ -6,6 +6,8 @@ import { createCamera, resizeCamera, followCamera } from './camera.js';
 import { createInput } from './input.js';
 import { createCar, syncCar } from './car.js';
 import { driveCar } from './drive.js';
+import { createRace } from './race.js';
+import { createHud } from './ui.js';
 
 const canvas = document.getElementById('game');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -32,6 +34,8 @@ const player = createCar({
   heading: Math.atan2(fwd.x, fwd.z),
 });
 scene.add(player.mesh);
+const race = createRace(track, [player]);
+const hud = createHud();
 camera.position.x = player.x;
 camera.position.z = player.z;
 
@@ -54,12 +58,14 @@ function frame(now) {
   acc += dt;
   while (acc >= step) {
     driveCar(track, player, input.update(), step);
+    race.update(step);
     acc -= step;
   }
   const alpha = acc / step;
   syncCar(player, alpha);
   const look = CONFIG.camera.lookAhead;
   followCamera(camera, player.mesh.position.x + player.vx * look, player.mesh.position.z + player.vz * look, dt);
+  hud.update(race, race.entries[0]);
   renderer.render(scene, camera);
   requestAnimationFrame(frame);
 }

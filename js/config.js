@@ -38,6 +38,10 @@ export const CONFIG = {
     overSpeedDecel: 3, // 1/s pull-down when above the surface speed cap
     grass: { speedMul: 0.4, dragAdd: 1.2, gripMul: 0.5 },
   },
+  race: {
+    laps: 3,
+    checkpoints: [0.25, 0.5, 0.75], // fractions of the loop, passed in order before the line counts
+  },
   player: {
     color: 0xe53935,
     startBack: 6, // units behind the start line
