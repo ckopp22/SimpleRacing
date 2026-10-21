@@ -4,7 +4,8 @@ import { createTrackData } from './track.js';
 import { buildTrackMesh } from './trackMesh.js';
 import { createCamera, resizeCamera, followCamera } from './camera.js';
 import { createInput } from './input.js';
-import { createCar, stepCar, syncCar } from './car.js';
+import { createCar, syncCar } from './car.js';
+import { driveCar } from './drive.js';
 
 const canvas = document.getElementById('game');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -52,7 +53,7 @@ function frame(now) {
   last = now;
   acc += dt;
   while (acc >= step) {
-    stepCar(player, input.update(), step);
+    driveCar(track, player, input.update(), step);
     acc -= step;
   }
   const alpha = acc / step;

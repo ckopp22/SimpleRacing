@@ -48,7 +48,7 @@ function checkerTexture(cells) {
   return t;
 }
 
-// Ground + asphalt ribbon + kerbs + start/finish strip. 4 draw calls.
+// Ground + asphalt ribbon + kerbs + barriers + start/finish strip. 5 draw calls.
 export function buildTrackMesh(data, cfg = CONFIG.track, world = CONFIG.world) {
   const group = new THREE.Group();
   const { points, normals, count, width } = data;
@@ -86,6 +86,29 @@ export function buildTrackMesh(data, cfg = CONFIG.track, world = CONFIG.world) {
       kerbCols.push(color);
     }
   }
+  // Barriers: flat top strips (vertical faces are invisible from above)
+  const walls = [];
+  const wallCols = [];
+  for (let i = 0; i < count; i++) {
+    const j = at(i + 1);
+    const color = cfg.wallColors[Math.floor(i / cfg.wallRunSamples) % 2];
+    for (const side of [1, -1]) {
+      const inner = cfg.wallDist * side;
+      const outer = (cfg.wallDist + cfg.wallThick) * side;
+      walls.push([
+        offset(points[i], normals[i], inner, world.wallY),
+        offset(points[i], normals[i], outer, world.wallY),
+        offset(points[j], normals[j], outer, world.wallY),
+        offset(points[j], normals[j], inner, world.wallY),
+      ]);
+      wallCols.push(color);
+    }
+  }
+  group.add(new THREE.Mesh(
+    quadsGeometry(walls, wallCols),
+    new THREE.MeshLambertMaterial({ vertexColors: true, side: THREE.DoubleSide })
+  ));
+
   group.add(new THREE.Mesh(
     quadsGeometry(road),
     new THREE.MeshLambertMaterial({ color: cfg.asphaltColor, side: THREE.DoubleSide })

@@ -34,6 +34,9 @@ export const CONFIG = {
     length: 4.6,
     width: 2.2,
     height: 0.9,
+    radius: 1.4, // wall-collision radius
+    overSpeedDecel: 3, // 1/s pull-down when above the surface speed cap
+    grass: { speedMul: 0.4, dragAdd: 1.2, gripMul: 0.5 },
   },
   player: {
     color: 0xe53935,
@@ -44,6 +47,7 @@ export const CONFIG = {
     groundColor: 0x3f9b43,
     trackY: 0.02,
     kerbY: 0.04,
+    wallY: 1.2,
     startY: 0.06,
   },
   track: {
@@ -51,11 +55,11 @@ export const CONFIG = {
     points: [
       [-100, 110], [0, 110], [100, 110],
       [170, 90], [195, 30],
-      [150, -25], [85, -35],
-      [70, -95], [118, -142],
-      [50, -190], [-45, -178],
-      [-115, -165], [-165, -115],
-      [-115, -80], [-50, -68],
+      [158, -18], [100, -40],
+      [85, -92], [140, -125],
+      [120, -190], [30, -200],
+      [-120, -172], [-180, -128],
+      [-140, -78], [-50, -68],
       [-30, -20], [-80, 10], [-170, 10],
       [-195, 60], [-165, 100],
     ],
@@ -67,5 +71,11 @@ export const CONFIG = {
     kerbColors: [0xd32f2f, 0xffffff],
     startDepth: 4,
     startCells: [10, 2], // checker cells across x along
+    wallDist: 13, // barrier distance from centreline (must stay < tightest corner radius)
+    wallThick: 1.2,
+    wallColors: [0xcfd8dc, 0x78909c],
+    wallRunSamples: 3,
+    wallKill: 0.9, // fraction of into-wall velocity removed on impact
+    wallScrape: 1.5, // speed bled per second while sliding along a wall (1/s)
   },
 };

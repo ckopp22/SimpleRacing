@@ -1,6 +1,8 @@
 import * as THREE from '../lib/three.module.min.js';
 import { CONFIG } from './config.js';
 
+export const ROAD = { speedMul: 1, dragAdd: 0, gripMul: 1 };
+
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 
 function box(w, h, l, color, x, y, z) {
@@ -44,7 +46,7 @@ export function createCar({ color, x = 0, z = 0, heading = 0 }) {
 }
 
 // One fixed physics step. controls = { throttle, brake, steer }
-export function stepCar(car, controls, dt, c = CONFIG.car) {
+export function stepCar(car, controls, dt, surface = ROAD, c = CONFIG.car) {
   car.prev.x = car.x;
   car.prev.z = car.z;
   car.prev.heading = car.heading;
@@ -63,7 +65,9 @@ export function stepCar(car, controls, dt, c = CONFIG.car) {
   let lat = car.vx * rx + car.vz * rz;
 
   // Throttle / brake / reverse
-  if (controls.throttle > 0) fs += c.accel * controls.throttle * (1 - clamp(fs / c.maxSpeed, 0, 1)) * dt;
+  const cap = c.maxSpeed * surface.speedMul;
+  if (controls.throttle > 0) fs += c.accel * controls.throttle * (1 - clamp(fs / cap, 0, 1)) * dt;
+  if (fs > cap) fs -= (fs - cap) * c.overSpeedDecel * dt;
   if (controls.brake > 0) {
     if (fs > 0.5) fs = Math.max(0, fs - c.brake * controls.brake * dt);
     else fs = Math.max(-c.reverseMax, fs - c.reverseAccel * controls.brake * dt);
@@ -71,12 +75,12 @@ export function stepCar(car, controls, dt, c = CONFIG.car) {
 
   // Drag + coast-down friction (never flips the sign of fs)
   const sign = Math.sign(fs);
-  let loss = Math.abs(fs) * c.drag * dt;
+  let loss = Math.abs(fs) * (c.drag + surface.dragAdd) * dt;
   if (controls.throttle === 0 && controls.brake === 0) loss += c.rolling * dt;
   fs = sign * Math.max(0, Math.abs(fs) - loss);
 
   // Grip: bleed off sideways velocity
-  lat *= Math.exp(-c.grip * dt);
+  lat *= Math.exp(-c.grip * surface.gripMul * dt);
 
   car.vx = fx * fs + rx * lat;
   car.vz = fz * fs + rz * lat;
