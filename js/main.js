@@ -10,7 +10,7 @@ import { createMenus } from './menus.js';
 import { createEffects } from './effects.js';
 import { createAudio } from './audio.js';
 import { createGhost } from './ghost.js';
-import { loadSettings, saveSettings, loadBestLap, saveBestLap } from './storage.js';
+import { loadSettings, saveSettings, loadBestLap, saveBestLap, hasWon, saveWin } from './storage.js';
 
 const canvas = document.getElementById('game');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
@@ -96,7 +96,10 @@ function finishRace() {
   state = 'FINISHED';
   ghost.reset(current.id, session.player.spriteId);
   const { race } = session;
+  const won = race.entries[0].finishTime !== null && race.rankOf(race.entries[0]) === 1;
+  if (won) saveWin(current.id, session.player.spriteId);
   menus.showResults({
+    won,
     rows: race.order.map((e) => ({ name: e.car.name, color: e.car.color, time: e.finishTime, you: e.car === session.player })),
     bestLap,
     record: newRecord,
@@ -107,6 +110,7 @@ const hud = createHud({ onPause: pause });
 const menus = createMenus({
   onRace: startRace,
   onTrack: selectTrack,
+  hasWon: (trackIndex, carId) => hasWon(TRACKS[trackIndex].id, carId),
   onCar: (id) => { session.setPlayerCar(id); settings.car = id; saveSettings(settings); },
   onDifficulty: (d) => { settings.difficulty = d; saveSettings(settings); },
   onGhost: () => {
