@@ -16,7 +16,18 @@ export function createRace(track, cars, cfg = CONFIG.race) {
     prev: null,
     progress: 0, // laps + fraction, for ranking
   }));
-  const race = { time: 0, totalLaps: cfg.laps, entries };
+  const race = { time: 0, totalLaps: cfg.laps, entries, order: entries.slice() };
+
+  // Finished cars first (by finish time), then by progress
+  const rankSort = (a, b) => {
+    if (a.finishTime !== null || b.finishTime !== null) {
+      if (a.finishTime === null) return 1;
+      if (b.finishTime === null) return -1;
+      return a.finishTime - b.finishTime;
+    }
+    return b.progress - a.progress;
+  };
+  race.rankOf = (e) => race.order.indexOf(e) + 1;
 
   // Did the car move forward past `target` between index prev and idx?
   const crossed = (prev, idx, target) => {
@@ -54,6 +65,7 @@ export function createRace(track, cars, cfg = CONFIG.race) {
       e.progress = e.laps + (e.started ? 0 : -1) + idx / n;
       e.prev = idx;
     }
+    race.order.sort(rankSort);
   };
 
   return race;

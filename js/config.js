@@ -42,6 +42,42 @@ export const CONFIG = {
     laps: 3,
     checkpoints: [0.25, 0.5, 0.75], // fractions of the loop, passed in order before the line counts
   },
+  countdown: {
+    seconds: 3, // 3-2-1 before GO
+    goShow: 0.8, // how long "GO!" stays up
+  },
+  grid: {
+    rowGap: 9, // units between grid rows
+    lateral: 3.4, // units left/right of the centreline
+    playerSlot: 2, // 0,1 = front row (left,right), 2,3 = second row
+  },
+  ai: {
+    lookAhead: 10, // units
+    lookAheadTime: 0.35, // extra seconds of speed
+    steerGain: 2.2,
+    cornerSafety: 0.8, // fraction of the physical min turn radius used when picking corner speed
+    brakeDecel: 38, // units/s^2 assumed when planning braking
+    minCornerSpeed: 14,
+    maxOffset: 4, // units from centreline
+    avoidDist: 16,
+    avoidWidth: 2.6,
+    avoidOffset: 3,
+    avoidSmooth: 3, // 1/s
+    rubberGain: 0.6, // speed multiplier per lap of gap to the player
+    rubberMax: 0.05,
+    mistakeEvery: 4, // seconds between mistake rolls
+    mistakeSteer: 0.35,
+    mistakeTime: 0.5,
+    stuckSpeed: 2,
+    stuckTime: 1.5,
+    reverseTime: 1.2,
+    cars: [
+      { color: 0x1e88e5, speedMul: 0.92, offset: -2.5, wobble: 0.8, mistake: 0.25 },
+      { color: 0xfdd835, speedMul: 0.96, offset: 2.0, wobble: 0.6, mistake: 0.18 },
+      { color: 0x43a047, speedMul: 1.0, offset: 0.0, wobble: 0.5, mistake: 0.12 },
+    ],
+    aiSlots: [0, 1, 3],
+  },
   player: {
     color: 0xe53935,
     startBack: 6, // units behind the start line
